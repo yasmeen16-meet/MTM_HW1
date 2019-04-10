@@ -31,7 +31,7 @@ void freeWords(char** words, int size);
 void printResults(char** words, int size);
 
 //==============================================================================
-
+int
 void swap(char** a, char** b) {
 	char* temp = *a;
 	*a = *b;
