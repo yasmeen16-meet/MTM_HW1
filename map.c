@@ -13,7 +13,7 @@ typedef struct node {
 struct Map_t{
     static int  size ;
     Node iterator;
-    copyMapDataElements cope_data;
+    copyMapDataElements copy_data;
     copyMapKeyElements copy_key;
     freeMapDataElements free_data;
     freeMapKeyElements free_key;
