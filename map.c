@@ -31,7 +31,7 @@ Map mapCreate(copyMapDataElements copyDataElement,copyMapKeyElements copyKeyElem
     }
     map->size=0;
     map->iterator =NULL;
-    map->cope_data=copyDataElement;
+    map->copy_data=copyDataElement;
     map->copy_key=copyKeyElement;
     map->free_data= freeDataElement;
     map->free_key= freeKeyElement;
