@@ -1,6 +1,6 @@
-#include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
+#include <stdlib.h>
 #include "map.h"
 
 
@@ -12,7 +12,7 @@ typedef struct node {
 }*Node;
 
 struct Map_t {
-    ///in C we can't have a static variable inside structs.
+    ///in C we can't have a static variable inside structs
     int size;
     Node iterator;
     copyMapDataElements copy_data;
@@ -171,4 +171,5 @@ MapResult mpClear(Map map) {
 }
 
 ////////////////////////////////////////////////////////////////////////////
+
 
