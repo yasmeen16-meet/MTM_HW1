@@ -102,6 +102,8 @@ static MapResult add_key(Map map ,MapKeyElement key ,MapDataElement data){
     if (node==NULL){
         return MAP_OUT_OF_MEMORY;
     }
+    
+    //adding the first key
     if (map->size==0){
         map->iterator=node;
         map->size++;
@@ -112,6 +114,8 @@ static MapResult add_key(Map map ,MapKeyElement key ,MapDataElement data){
     while (ptr!=NULL){
         if (map->compare_keys(ptr->key,key)>0){
             node->next=ptr;
+            
+            // adding a key  the smallest value 
             if(ptr->previous==NULL){
                 node->previous=NULL;
                 ptr->previous=node;
@@ -131,6 +135,8 @@ static MapResult add_key(Map map ,MapKeyElement key ,MapDataElement data){
     while(map->iterator->next!=NULL){
         map->iterator=map->iterator->next;
     }
+    
+    // if the key(new) is greater than all the other keys
     map->iterator->next=node;
     node->previous=map->iterator;
     map->size++;
@@ -158,7 +164,7 @@ MapResult mapRemove(Map map, MapKeyElement keyElement){
     }
     if (!mapContains(map,keyElement)){
         return MAP_ITEM_DOES_NOT_EXIST;
-    }
+    }//
     if (map->size <=1){
         return  mapClear(map);
     }
@@ -166,10 +172,15 @@ MapResult mapRemove(Map map, MapKeyElement keyElement){
         if (map->compare_keys(keyElement,map->iterator->key)==0){
             map->free_data(map->iterator->data);
             map->free_key(map->iterator->key);
-            if(map->iterator->previous==NULL) {
+            
+            //if the keyElement is the first key in the map
+            if(map->iterator->previous==NULL) 
                 map->iterator=map->iterator->next;
                 map->iterator->previous=NULL;
             } else{
+            
+            //removes keyElement 
+            
                 map->iterator=map->iterator->next;
                 map->iterator->previous=map->iterator->previous->previous;
                 map->iterator= map->iterator->previous->previous;
@@ -180,6 +191,7 @@ MapResult mapRemove(Map map, MapKeyElement keyElement){
         }
         map->iterator=map->iterator->next;
     }
+// if the keEelemnt  is the last key
     map->iterator=map->iterator->previous;
     map->iterator->next=NULL;
     map->size--;
