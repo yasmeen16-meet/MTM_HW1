@@ -19,6 +19,7 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
@@ -42,8 +43,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/map.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="193">
-              <caret line="330" column="25" selection-start-line="330" selection-start-column="25" selection-end-line="330" selection-end-column="25" />
+            <state relative-caret-position="448">
+              <caret line="345" selection-start-line="345" selection-end-line="345" />
             </state>
           </provider>
         </entry>
@@ -62,7 +63,7 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
+  <component name="ProjectFrameBounds" extendedState="7">
     <option name="x" value="108" />
     <option name="y" value="201" />
     <option name="width" value="1034" />
@@ -81,7 +82,7 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
-    <property name="settings.editor.selected.configurable" value="CPPToolchains" />
+    <property name="settings.editor.selected.configurable" value="vcs.Git" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -116,11 +117,12 @@
       <workItem from="1555502677054" duration="8988000" />
       <workItem from="1555698457035" duration="10000" />
       <workItem from="1555698724640" duration="41000" />
+      <workItem from="1555699005019" duration="342000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="17718000" />
+    <option name="totallyTimeSpent" value="18060000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -132,9 +134,10 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
+    <frame x="-8" y="-8" width="1382" height="744" extended-state="7" />
+    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.26096824" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2647504" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -177,8 +180,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/map.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="193">
-          <caret line="330" column="25" selection-start-line="330" selection-start-column="25" selection-end-line="330" selection-end-column="25" />
+        <state relative-caret-position="448">
+          <caret line="345" selection-start-line="345" selection-end-line="345" />
         </state>
       </provider>
     </entry>
