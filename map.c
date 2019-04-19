@@ -168,6 +168,7 @@ MapResult mpClear(Map map) {
         map->free_key(current_key->key);
         free(current_key);
     }
+    map->size = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////
