@@ -43,8 +43,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/map.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="448">
-              <caret line="345" selection-start-line="345" selection-end-line="345" />
+            <state relative-caret-position="465">
+              <caret line="346" lean-forward="true" selection-start-line="346" selection-end-line="346" />
             </state>
           </provider>
         </entry>
@@ -52,6 +52,8 @@
     </leaf>
   </component>
   <component name="Git.Settings">
+    <option name="PATH_TO_GIT" value="C:\Users\HD\Downloads\Git-2.21.0-64-bit.exe" />
+    <option name="ROOT_SYNC" value="DONT_SYNC" />
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="IdeDocumentHistory">
@@ -63,7 +65,7 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="108" />
     <option name="y" value="201" />
     <option name="width" value="1034" />
@@ -80,6 +82,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$USER_HOME$/Downloads/Git-2.21.0-64-bit.exe" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="settings.editor.selected.configurable" value="vcs.Git" />
@@ -117,12 +120,12 @@
       <workItem from="1555502677054" duration="8988000" />
       <workItem from="1555698457035" duration="10000" />
       <workItem from="1555698724640" duration="41000" />
-      <workItem from="1555699005019" duration="342000" />
+      <workItem from="1555699005019" duration="1166000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="18060000" />
+    <option name="totallyTimeSpent" value="18884000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -134,8 +137,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1382" height="744" extended-state="7" />
-    <editor active="true" />
+    <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2647504" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -180,8 +182,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/map.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="448">
-          <caret line="345" selection-start-line="345" selection-end-line="345" />
+        <state relative-caret-position="465">
+          <caret line="346" lean-forward="true" selection-start-line="346" selection-end-line="346" />
         </state>
       </provider>
     </entry>
