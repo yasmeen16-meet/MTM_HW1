@@ -326,7 +326,7 @@ MapKeyElement mapGetFirst(Map map) {
 
 
 ///mapClear function:
-MapResult mpClear(Map map) {
+MapResult mapClear(Map map) {
     if (map == NULL) {
         return MAP_NULL_ARGUMENT;
     }
