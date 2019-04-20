@@ -53,7 +53,7 @@ void mapDestroy(Map map) {
 //mapGetSize
 int mapGetSize(Map map) {
     if (map == NULL) {
-        return EMPTY;
+        return -1;
     }
     return map->size;
 }
