@@ -339,6 +339,7 @@ MapResult mapClear(Map map) {
         free(current_key);
     }
     map->size = 0;
+    return  MAP_SUCCESS;
 }
 
 ////////////////////////////////////////////////////////////////////////////
