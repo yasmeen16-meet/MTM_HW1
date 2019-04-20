@@ -176,9 +176,9 @@ MapResult mapRemove(Map map, MapKeyElement keyElement) {
         if (map->compare_keys(keyElement, map->iterator->key) == 0) {
             map->free_data(map->iterator->data);
             map->free_key(map->iterator->key);
-
+       
             //if the keyElement is the first key in the map
-            if (map->iterator->previous == NULL)
+            if (map->iterator->previous == NULL){
                 map->iterator = map->iterator->next;
             map->iterator->previous = NULL;
         } else {
