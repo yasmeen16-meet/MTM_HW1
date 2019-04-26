@@ -176,30 +176,31 @@ MapResult mapRemove(Map map, MapKeyElement keyElement) {
         if (map->compare_keys(keyElement, map->iterator->key) == 0) {
             map->free_data(map->iterator->data);
             map->free_key(map->iterator->key);
-       
+
             //if the keyElement is the first key in the map
-            if (map->iterator->previous == NULL){
+            if (map->iterator->previous == NULL) {
                 map->iterator = map->iterator->next;
-            map->iterator->previous = NULL;
-        } else {
+                map->iterator->previous = NULL;
+            } else {
 
-            //removes keyElement
+                //removes keyElement
 
-            map->iterator = map->iterator->next;
-            map->iterator->previous = map->iterator->previous->previous;
-            map->iterator = map->iterator->previous->previous;
-            map->iterator->next = map->iterator->next->next;
+                map->iterator = map->iterator->next;
+                map->iterator->previous = map->iterator->previous->previous;
+                map->iterator = map->iterator->previous->previous;
+                map->iterator->next = map->iterator->next->next;
+            }
+            map->size--;
+            return MAP_SUCCESS;
         }
+        map->iterator = map->iterator->next;
+
+// if the keEelemnt  is the last key
+        map->iterator = map->iterator->previous;
+        map->iterator->next = NULL;
         map->size--;
         return MAP_SUCCESS;
     }
-    map->iterator = map->iterator->next;
-
-// if the keEelemnt  is the last key
-    map->iterator = map->iterator->previous;
-    map->iterator->next = NULL;
-    map->size--;
-    return MAP_SUCCESS;
 }
 
 
