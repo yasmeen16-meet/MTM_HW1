@@ -40,10 +40,10 @@ void judgeDestroy(Judge judge){
         return;
     }
     while (judge!=NULL){
-         Judge current = judge;
-         free(judge->judgeResult);
-         judge= judge->judgeNext;
-         free(current);
+        Judge current = judge;
+        free(judge->judgeResult);
+        judge= judge->judgeNext;
+        free(current);
     }
 }
 
@@ -106,8 +106,8 @@ static Judge createJudge ( int judgeId , char* judgeName, int * judgeResults){
     for (int i = 0; i <LEN ; ++i) {
         new->judgeResult[i]=judgeResults[i];
     }
-    int len_judgeName=strlen(judgeName);
-    new->judgeName=malloc(len_judgeName* sizeof(char)+1);
+    int len_judgeName=strlen(judgeName)+1;
+    new->judgeName=malloc(len_judgeName* sizeof(char));
     if (new->judgeName==NULL){
         free(new->judgeResult);
         free(new);
@@ -128,23 +128,26 @@ JudgeResult judgeAdd (Judge judge , int judgeId , char* judgeName, int * judgeRe
     }
     if (judge==NULL){
         judge=new;
-        return JUDGE_SUCCESS;
     } else {
         Judge help_iterator = judge;
         while (help_iterator->judgeNext != NULL) {
             help_iterator = help_iterator->judgeNext;
         }
         help_iterator->judgeNext = new;
-        return JUDGE_SUCCESS;
     }
+    return JUDGE_SUCCESS;
 }
 JudgeResult judgeRemove (Judge judge , int judgeId){
-    assert(judgeContain(judge,judgeId)==true);
     if (judge==NULL){
         return JUDGE_NULL_ARGUMENT;
     }
+    assert(judgeContain(judge,judgeId)==true);
     if (judge->judgeId==judgeId){
+        Judge current = judge;
         judge =judge->judgeNext;
+        free(current->judgeResult);
+        free(current->judgeName);
+        free(current);
         return JUDGE_SUCCESS;
     }
     Judge help_iterator = judge;
@@ -160,4 +163,4 @@ JudgeResult judgeRemove (Judge judge , int judgeId){
         help_iterator=help_iterator->judgeNext;
     }
     return JUDGE_SUCCESS;
-}
+}}
