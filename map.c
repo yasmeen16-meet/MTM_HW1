@@ -13,7 +13,7 @@ typedef struct node {
 }*Node;
 
 struct Map_t{
-    int  size ;
+    int  size;
     Node iterator;
     copyMapDataElements copy_data;
     copyMapKeyElements copy_key;
@@ -22,8 +22,9 @@ struct Map_t{
     compareMapKeyElements compare_keys ;
 };
 
+
 Map mapCreate(copyMapDataElements copyDataElement,copyMapKeyElements copyKeyElement,freeMapDataElements freeDataElement,
-              freeMapKeyElements freeKeyElement,compareMapKeyElements compareKeyElements){
+        freeMapKeyElements freeKeyElement,compareMapKeyElements compareKeyElements){
     if(!copyDataElement || !copyKeyElement || !freeDataElement || !freeKeyElement || !compareKeyElements){
         return NULL;
     }
@@ -51,10 +52,9 @@ int mapGetSize(Map map){
     if (map==NULL){
         return EMPTY;
     }
-    return map->size;
+    return map->size ;
 }
 static Node node_Create (Map map ,MapKeyElement keyElement,  MapDataElement dataElement){
-    assert(!map||!keyElement||!dataElement);
     Node node =malloc(sizeof(*node));
     if (node==NULL){
         return NULL;
@@ -89,17 +89,17 @@ static MapResult edit_Data(Map map ,MapKeyElement keyElement,  MapDataElement da
         }
         ptr=ptr->next;
     }
+
     return MAP_SUCCESS;
 }
+
 static MapResult add_key(Map map ,MapKeyElement key ,MapDataElement data){
-    assert(!map|| !key ||!data);
     Node node = node_Create(map,key,data);
     if (node==NULL){
         return MAP_OUT_OF_MEMORY;
     }
     if (map->size==0){
         map->iterator=node;
-        map->size++;
         return MAP_SUCCESS;
     }
     mapGetFirst(map);
@@ -118,7 +118,6 @@ static MapResult add_key(Map map ,MapKeyElement key ,MapDataElement data){
                 ptr=ptr->next->next;
                 ptr->previous=node;
             }
-            map->size = map->size++;
             return MAP_SUCCESS;
         }
         ptr=ptr->next;
@@ -128,7 +127,6 @@ static MapResult add_key(Map map ,MapKeyElement key ,MapDataElement data){
     }
     map->iterator->next=node;
     node->previous=map->iterator;
-    map->size++;
     return MAP_SUCCESS;
 
 }
@@ -136,11 +134,16 @@ MapResult mapPut(Map map, MapKeyElement keyElement, MapDataElement dataElement){
     if (map==NULL){
         return MAP_NULL_ARGUMENT;
     }
-    if (mapContains(map,keyElement)==0) {
+    if (mapContains(map,keyElement)==true) {
+
         MapResult result = edit_Data(map, keyElement, dataElement);
         return result;
     }
     MapResult result=add_key(map,keyElement,dataElement);
+    if(result==MAP_SUCCESS){
+
+        map->size=map->size+ 1 ;
+    }
     return result;
 
 }
@@ -248,8 +251,8 @@ static void moveIteratorToInitialPosition(Map map, Node initial_position) {
     assert(map != NULL && initial_position != NULL);
     ///main iterator goes to the first key
     mapGetFirst(map);
-    while (map->iterator != initial_position) {
-        mapGetNext(map);
+    while (map->compare_keys(map->iterator->key, initial_position->key)!=0) {
+        map->iterator=map->iterator->next;
         assert(map->iterator != NULL);
     }
     ///when the while loop ends, meaning it's pointing to where initial_position is
@@ -271,7 +274,10 @@ MapDataElement  mapGet(Map map, MapKeyElement keyElement) {
     Node iterator_help = NULL;
     for (iterator_help = map->iterator; iterator_help != NULL; iterator_help = iterator_help->next) {
         if (map->compare_keys(keyElement, iterator_help->key) == 0) {
-            data = map->iterator->data;
+            data = map->copy_data(iterator_help->data);
+            if (data==NULL){
+                return NULL;
+            }
             moveIteratorToInitialPosition(map, initial_position);
             break;
         }
@@ -304,8 +310,10 @@ MapResult mapClear(Map map) {
     mapGetFirst(map);
     while (map->iterator != NULL) {
         Node current_key = map->iterator;
-        mapGetNext(map);
+        map->iterator=map->iterator->next;
         map->free_data(current_key->data);
+        current_key->previous=NULL;
+        current_key->next=NULL;
         map->free_key(current_key->key);
         free(current_key);
     }
