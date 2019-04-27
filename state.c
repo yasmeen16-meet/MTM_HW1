@@ -8,7 +8,12 @@ typedef struct state{
     int stateId;
     char* stateName;
     char* songName;
+<<<<<<< HEAD
     Map stateVotes;//array
+=======
+    Map stateVotes;
+    ///statevotedscores an array of ints???
+>>>>>>> 0409040c029d675ea3d227020a2183d15d80bc7d
     struct state* stateNext;
 }*State;
 
@@ -83,8 +88,10 @@ State stateCreate(int stateId, char* stateName, char* songName) {
         free(new_stateName);
         return NULL;
     }
-
-    Map new_map = mapCreate(intCopy, intCopy, intFree, intFree, intCompare);
+    int (*ptrCopy)(int)=intCopy;
+    void (*ptrFree)(int)=intFree;
+    int (*ptrCompare)(int,int)=intCompare;
+    Map new_map = mapCreate(ptrCopy,ptrCopy, ptrFree,ptrFree, ptrCompare);
     if (new_map == NULL) {
         free(new_state);
         free(new_stateName);
@@ -108,51 +115,48 @@ void stateSingalDestroy(State stateToDelete){
 }
 
 ///function stateDestroy
-void stateDestroy(State state){
-    if (state == NULL){
+void stateDestroy(State state) {
+    if (state == NULL) {
         return;
     }
     while (state != NULL) {
         State stateToDelete = state;
         state = state->stateNext;
-        free(stateToDelete->stateName);
-        free(stateToDelete->songName);
-        mapDestroy(stateToDelete->stateVotes);
-        free(stateToDelete);
+        stateSingalDestroy(stateToDelete);
     }
 }
 
 ///function stateCopy**************
 
 State stateCopy(State state) {
-    if (state == NULL){
+    if (state == NULL) {
         return NULL;
     }
-    State new_copy=NULL;
+    State new_copy = NULL;
     State help_iterator = state;
-    while (help_iterator!=NULL) {
+    while (help_iterator != NULL) {
 
         StateResult result = stateAddWithMap(new_copy, help_iterator->stateId, help_iterator->stateName,
                                              help_iterator->songName, help_iterator->stateVotes);
-        if (result != STATE_SUCCESS){
+        if (result != STATE_SUCCESS) {
             stateDestroy(new_copy);
             return NULL;
         }
-        help_iterator= help_iterator->stateNext;
+        help_iterator = help_iterator->stateNext;
     }
     return new_copy;
 }
 
 ///needs help_iterator
-int stateGetSize(State state){
-    if (state == NULL){
+int stateGetSize(State state) {
+    if (state == NULL) {
         return 0;
     }
-    State help_iterator=state;
-    int size=0;
-    while(help_iterator!=NULL){
+    State help_iterator = state;
+    int size = 0;
+    while (help_iterator != NULL) {
         size++;
-        help_iterator=help_iterator->stateNext;
+        help_iterator = help_iterator->stateNext;
     }
     return size;
 }
@@ -174,7 +178,7 @@ bool stateContain(State state, int stateId) {
 }
 
 ///function stateFind
-State stateFind(State state, int stateId){
+State stateFind(State state, int stateId) {
     if (state == NULL) {
         return NULL;
     }
@@ -227,15 +231,10 @@ StateResult stateAddWithMap(State state, int stateId, char* stateName, char* son
         return STATE_NULL_ARGUMENT;
     }
     StateResult result = stateAdd(state, stateId, stateName, songName);
-    if (result == STATE_NULL_ARGUMENT){
-        return STATE_NULL_ARGUMENT;
+    if (result != STATE_SUCCESS){
+        return result;
     }
-    if (result == STATE_OUT_OF_MEMORY){
-        return STATE_OUT_OF_MEMORY;
-    }
-    if (result == STATE_ALREADY_EXISTS){
-        return STATE_ALREADY_EXISTS;
-    }
+
     State added_state = stateFind(state, stateId);
     assert(added_state != NULL);
 
@@ -253,17 +252,14 @@ StateResult stateRemove(State state, int stateId) {
         return STATE_NULL_ARGUMENT;
     }
     ///checking if the stateId does not exist
-    if (!stateContain(state, stateId)){
+    if (!stateContain(state, stateId)) {
         return STATE_NOT_EXIST;
     }
     ///if we are removing the first state
     if (state->stateId == stateId) {
         State stateToDelete = state;
         state = state->stateNext;
-        free(stateToDelete->stateName);
-        free(stateToDelete->songName);
-        mapDestroy(stateToDelete->stateVotes);
-        free(stateToDelete);
+        stateSingalDestroy(stateToDelete);
     }
     ///we to need search for the state after the first one
     State help_iterator = state;
@@ -272,22 +268,13 @@ StateResult stateRemove(State state, int stateId) {
             State stateToDelete = help_iterator->stateNext;
             help_iterator->stateNext = help_iterator->stateNext->stateNext;
 
-            free(stateToDelete->stateName);
-            free(stateToDelete->songName);
-            mapDestroy(stateToDelete->stateVotes);
-            free(stateToDelete);
+            stateSingalDestroy(stateToDelete);
             break;
         }
         help_iterator = help_iterator->stateNext;
     }
     return STATE_SUCCESS;
 }
-
-
-
-
-
-
 
 
 
