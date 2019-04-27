@@ -8,12 +8,8 @@ typedef struct state{
     int stateId;
     char* stateName;
     char* songName;
-<<<<<<< HEAD
-    Map stateVotes;//array
-=======
     Map stateVotes;
     ///statevotedscores an array of ints???
->>>>>>> 0409040c029d675ea3d227020a2183d15d80bc7d
     struct state* stateNext;
 }*State;
 
