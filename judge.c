@@ -34,6 +34,7 @@ JudgeResult judgeAdd (Judge judge , int judgeId , char* judgeName, int * judgeRe
 JudgeResult judgeRemove (Judge judge , int judgeId); // free arrray
 
 static Judge createJudge ( int judgeId , char* judgeName, int * judgeResults);
+
 void judgeDestroy(Judge judge){
     if(judge == NULL){
         return;
@@ -79,7 +80,7 @@ bool judgeContain(Judge judge , int judgeId){
 
 Judge judgeFind (Judge judge , int judgeId){
     if (judge==NULL){
-        return false;
+        return NULL;
     }
     Judge  help_iterator = judge;
     while (help_iterator!=NULL){
