@@ -8,7 +8,7 @@ typedef struct state{
     int stateId;
     char* stateName;
     char* songName;
-    Map stateVotes;
+    Map stateVotes;//array
     struct state* stateNext;
 }*State;
 
