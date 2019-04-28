@@ -11,6 +11,7 @@ struct eurovision_t{
     State states;
     Judge judges;
 };
+
 static bool isValidName(char * name);
 
 
