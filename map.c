@@ -92,7 +92,7 @@ static MapResult edit_Data(Map map ,MapKeyElement keyElement,  MapDataElement da
 
     return MAP_SUCCESS;
 }
-
+static void moveIteratorToInitialPosition(Map map, Node initial_position) ;
 static MapResult add_key(Map map ,MapKeyElement key ,MapDataElement data){
     Node node = node_Create(map,key,data);
     if (node==NULL){
@@ -109,7 +109,7 @@ static MapResult add_key(Map map ,MapKeyElement key ,MapDataElement data){
             node->next=ptr;
             if(ptr->previous==NULL){
                 node->previous=NULL;
-                ptr->previous=node;
+                map->iterator->previous=node;
 
             } else{
                 ptr=ptr->previous;
@@ -118,20 +118,24 @@ static MapResult add_key(Map map ,MapKeyElement key ,MapDataElement data){
                 ptr=ptr->next->next;
                 ptr->previous=node;
             }
+            moveIteratorToInitialPosition(map,ptr);
             return MAP_SUCCESS;
         }
         ptr=ptr->next;
     }
-    while(map->iterator->next!=NULL){
-        map->iterator=map->iterator->next;
+    mapGetFirst(map);
+    Node ptr2 = map->iterator;
+    while (ptr2->next!=NULL){
+        ptr2= ptr2->next;
     }
-    map->iterator->next=node;
-    node->previous=map->iterator;
+    ptr2->next=node;
+    node->previous=ptr2;
+    moveIteratorToInitialPosition(map,ptr2->next);
     return MAP_SUCCESS;
 
 }
 MapResult mapPut(Map map, MapKeyElement keyElement, MapDataElement dataElement){
-    if (map==NULL){
+    if (map==NULL||keyElement==NULL ||dataElement==NULL){
         return MAP_NULL_ARGUMENT;
     }
     if (mapContains(map,keyElement)==true) {
@@ -148,7 +152,7 @@ MapResult mapPut(Map map, MapKeyElement keyElement, MapDataElement dataElement){
 
 }
 MapResult mapRemove(Map map, MapKeyElement keyElement){
-    if(map==NULL){
+    if(map==NULL || keyElement==NULL){
         return MAP_NULL_ARGUMENT;
     }
     if (!mapContains(map,keyElement)){
@@ -185,6 +189,7 @@ MapKeyElement mapGetNext(Map map){
         return NULL;
     }
     map->iterator=map->iterator->next;
+    assert(map->iterator!=NULL);
     return map->iterator->key;
 }
 
@@ -201,9 +206,9 @@ static MapResult addOrDestroy(Map map, MapKeyElement keyElement, MapDataElement 
 static  MapResult addAllOrDestroy(Map map, Map toAdd) {
     assert(map != NULL && toAdd != NULL);
     ///move the main iterator to the beginning
-    mapGetFirst(map);
+    mapGetFirst(toAdd);
     Node iterator_help = NULL;
-    for (iterator_help = map->iterator; iterator_help != NULL; iterator_help = iterator_help->next) {
+    for (iterator_help = toAdd->iterator; iterator_help != NULL; iterator_help = iterator_help->next) {
         if (addOrDestroy(map, iterator_help->key, iterator_help->data) == MAP_OUT_OF_MEMORY) {
             return MAP_OUT_OF_MEMORY;
         }
