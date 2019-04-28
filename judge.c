@@ -41,8 +41,9 @@ void judgeDestroy(Judge judge){
     }
     while (judge!=NULL){
         Judge current = judge;
-        free(judge->judgeResult);
-        judge= judge->judgeNext;
+        judge =judge->judgeNext;
+        free(current->judgeResult);
+        free(current->judgeName);
         free(current);
     }
 }
