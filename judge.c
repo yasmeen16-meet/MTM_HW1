@@ -29,7 +29,7 @@ bool judgeContain(Judge judge , int judgeId);
 
 Judge judgeFind (Judge judge , int judgeId);
 
-JudgeResult judgeAdd (Judge judge , int judgeId , char* judgeName, int * judgeResults);//the array needs to be copy
+JudgeResult judgeAdd (Judge judge , int judgeId , const char* judgeName, int * judgeResults);//the array needs to be copy
 
 JudgeResult judgeRemove (Judge judge , int judgeId); // free arrray
 
@@ -116,7 +116,7 @@ static Judge createJudge ( int judgeId , char* judgeName, int * judgeResults){
     }
     return  new;
 }
-JudgeResult judgeAdd (Judge judge , int judgeId , char* judgeName, int * judgeResults) {
+JudgeResult judgeAdd (Judge judge , int judgeId , const char* judgeName, int * judgeResults) {
     if(judgeName== NULL ||judgeResults==NULL){
         return JUDGE_NULL_ARGUMENT;
     }
