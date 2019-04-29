@@ -57,9 +57,9 @@ StateResult stateRemove(State state, int stateId);
 
 
 ///additional functions
-static int intCopy(int num);
-static void intFree(int num);
-static int intCompare(int num1, int num2);
+static int* intCopy(int* num);
+static void intFree(int* num);
+static int intCompare(int* num1, int* num2);
 
 
 
@@ -90,9 +90,9 @@ State stateCreate(int stateId, const char* stateName, const char* songName) {
     }
     ///Map stateVotes
     //needs to be changed!!!!!!!!
-    int (*ptrCopy)(int)=intCopy;
-    void (*ptrFree)(int)=intFree;
-    int (*ptrCompare)(int,int)=intCompare;
+    int* (*ptrCopy)(int*)=intCopy;
+    void (*ptrFree)(int*)=intFree;
+    int (*ptrCompare)(int*,int*)=intCompare;
     Map new_map = mapCreate(ptrCopy,ptrCopy, ptrFree,ptrFree, ptrCompare);
     if (new_map == NULL) {
         free(new_state);
@@ -294,7 +294,7 @@ StateResult stateRemove(State state, int stateId) {
 
 
 //needs to be changed
-static int intCopy(int num){
+static int* intCopy(int* num){
     if (!num) {
         return NULL;
     }
@@ -302,14 +302,14 @@ static int intCopy(int num){
     if (!copy) {
         return NULL;
     }
-    *copy = *(int *) num;
+    *copy = * num;
     return copy;
 }
 
-static void intFree(int num){
+static void intFree(int* num){
     free((int*)num);
 }
 
-static int intCompare(int num1, int num2){
-    return num1 - num2;
+static int intCompare(int* num1, int* num2){
+    return *(num1) - *(num2);
 }
