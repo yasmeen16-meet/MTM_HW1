@@ -25,7 +25,7 @@ typedef enum StateResult_t{
 }StateResult;
 
 ///
-State stateCreate(int stateId, char* stateName, char* songName);
+State stateCreate(int stateId, const char* stateName, const char* songName);
 
 ///destroying one singal state
 void stateSingalDestroy(State stateToDelete);
@@ -46,10 +46,10 @@ bool stateContain(State state, int stateId);
 State stateFind(State state, int stateId);
 
 ///uses mapCreate
-StateResult stateAdd(State state, int stateId, char* stateName, char* songName);
+StateResult stateAdd(State state, int stateId, const char* stateName, const char* songName);
 
 ///uses stateAdd
-StateResult stateAddWithMap(State state, int stateId, char* stateName, char* songName, Map stateVotes);
+StateResult stateAddWithMap(State state, int stateId, const char* stateName, const char* songName, Map stateVotes);
 
 ///uses mapDestroy
 StateResult stateRemove(State state, int stateId);
@@ -66,7 +66,7 @@ static int intCompare(int num1, int num2);
 
 ///applications of the functions:
 ///function stateCreate
-State stateCreate(int stateId, char* stateName, char* songName) {
+State stateCreate(int stateId, const char* stateName, const char* songName) {
     assert(stateName != NULL || songName != NULL);
 
     State new_state = malloc(sizeof(*new_state));
@@ -206,7 +206,7 @@ State stateFind(State state, int stateId) {
 }
 
 ///uses mapCreate
-StateResult stateAdd(State state, int stateId, char* stateName, char* songName){
+StateResult stateAdd(State state, int stateId, const char* stateName, const char* songName){
     if (stateName==NULL || songName==NULL){
         return STATE_NULL_ARGUMENT;
     }
@@ -239,7 +239,7 @@ StateResult stateAdd(State state, int stateId, char* stateName, char* songName){
 }
 
 ///uses stateAdd
-StateResult stateAddWithMap(State state, int stateId, char* stateName, char* songName, Map stateVotes){
+StateResult stateAddWithMap(State state, int stateId, const char* stateName, const char* songName, Map stateVotes){
     if (stateName==NULL || songName == NULL || stateVotes==NULL) {
         return STATE_NULL_ARGUMENT;
     }
