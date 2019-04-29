@@ -307,7 +307,7 @@ static int intCopy(int num){
 }
 
 static void intFree(int num){
-    free(num);
+    free((int*)num);
 }
 
 static int intCompare(int num1, int num2){
