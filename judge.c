@@ -120,22 +120,27 @@ JudgeResult judgeAdd (Judge judge , int judgeId , char* judgeName, int * judgeRe
     if(judgeName== NULL ||judgeResults==NULL){
         return JUDGE_NULL_ARGUMENT;
     }
+    if (judge==NULL) {
+        Judge new = createJudge(judgeId, judgeName, judgeResults);
+        if (new == NULL) {
+            return JUDGE_OUT_OF_MEMORY;
+        }
+        judge = new;
+        return JUDGE_SUCCESS;
+    }
     if (judgeContain(judge,judgeId)){
         return JUDGE_ALREADY_EXISTS;
     }
-    Judge  new =createJudge(judgeId,judgeName,judgeResults);
-    if (new==NULL){
+
+    Judge help_iterator = judge;
+    while (help_iterator->judgeNext != NULL) {
+        help_iterator = help_iterator->judgeNext;
+    }
+    Judge new = createJudge(judgeId, judgeName, judgeResults);
+    if (new == NULL) {
         return JUDGE_OUT_OF_MEMORY;
     }
-    if (judge==NULL){
-        judge=new;
-    } else {
-        Judge help_iterator = judge;
-        while (help_iterator->judgeNext != NULL) {
-            help_iterator = help_iterator->judgeNext;
-        }
-        help_iterator->judgeNext = new;
-    }
+    help_iterator->judgeNext = new;
     return JUDGE_SUCCESS;
 }
 JudgeResult judgeRemove (Judge judge , int judgeId){
