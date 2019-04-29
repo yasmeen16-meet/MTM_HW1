@@ -4,12 +4,14 @@
 #include <assert.h>
 #include "../map.h"
 
+#define LEN 10
+
 typedef struct state{
     int stateId;
     char* stateName;
     char* songName;
     Map stateVotes;
-    ///statevotedscores an array of ints???
+    int* stateVotedScores;
     struct state* stateNext;
 }*State;
 
@@ -71,12 +73,14 @@ State stateCreate(int stateId, char* stateName, char* songName) {
     if (new_state == NULL) {
         return NULL;
     }
+    ///stateName
     int len_stateName = strlen(stateName) + 1;
     char *new_stateName = malloc(sizeof(char) * (len_stateName));
     if (new_stateName == NULL) {
         free(new_state);
         return NULL;
     }
+    ///songName
     int len_songName = strlen(songName) + 1;
     char *new_songName = malloc(sizeof(char) * (len_songName));
     if (new_songName == NULL) {
@@ -84,6 +88,8 @@ State stateCreate(int stateId, char* stateName, char* songName) {
         free(new_stateName);
         return NULL;
     }
+    ///Map stateVotes
+    //needs to be changed!!!!!!!!
     int (*ptrCopy)(int)=intCopy;
     void (*ptrFree)(int)=intFree;
     int (*ptrCompare)(int,int)=intCompare;
@@ -94,11 +100,21 @@ State stateCreate(int stateId, char* stateName, char* songName) {
         free(new_songName);
         return NULL;
     }
-
+    ///stateVotedScores
+    int* stateVotedScores = malloc(sizeof(int)*LEN);
+    if (stateVotedScores==NULL){
+        free(new_state);
+        free(new_stateName);
+        free(new_songName);
+        mapDestroy(new_map);
+        return NULL;
+    }
+    ///placing the fields
     new_state->stateId = stateId;
     new_state->stateName = new_stateName;
     new_state->songName = new_songName;
     new_state->stateVotes = new_map;
+    new_state->stateVotedScores=stateVotedScores;
     return new_state;
 }
 
@@ -107,6 +123,7 @@ void stateSingalDestroy(State stateToDelete){
     free(stateToDelete->stateName);
     free(stateToDelete->songName);
     mapDestroy(stateToDelete->stateVotes);
+    free(stateToDelete->stateVotedScores);
     free(stateToDelete);
 }
 
@@ -207,7 +224,7 @@ StateResult stateAdd(State state, int stateId, char* stateName, char* songName){
     if (stateContain(state, stateId)){
         return STATE_ALREADY_EXISTS;
     }
-    ///the state does not exists, thus it needs to be added
+    ///the state does not exist, thus it needs to be added
     State help_iterator = state;
     ///bringing the help_iterator to the final state
     while (help_iterator->stateNext!=NULL) {
@@ -223,7 +240,7 @@ StateResult stateAdd(State state, int stateId, char* stateName, char* songName){
 
 ///uses stateAdd
 StateResult stateAddWithMap(State state, int stateId, char* stateName, char* songName, Map stateVotes){
-    if (state==NULL || stateName==NULL || songName == NULL || stateVotes==NULL) {
+    if (stateName==NULL || songName == NULL || stateVotes==NULL) {
         return STATE_NULL_ARGUMENT;
     }
     StateResult result = stateAdd(state, stateId, stateName, songName);
@@ -233,6 +250,8 @@ StateResult stateAddWithMap(State state, int stateId, char* stateName, char* son
 
     State added_state = stateFind(state, stateId);
     assert(added_state != NULL);
+    ///Destroying the previous allocated map in stateCreate() used above in stateAdd function
+    mapDestroy(added_state->stateVotes);
 
     Map map = mapCopy(stateVotes);
     if (map == NULL){
@@ -274,7 +293,7 @@ StateResult stateRemove(State state, int stateId) {
 
 
 
-
+//needs to be changed
 static int intCopy(int num){
     if (!num) {
         return NULL;
