@@ -29,11 +29,11 @@ bool judgeContain(Judge judge , int judgeId);
 
 Judge judgeFind (Judge judge , int judgeId);
 
-JudgeResult judgeAdd (Judge judge , int judgeId , char* judgeName, int * judgeResults);//the array needs to be copy
+JudgeResult judgeAdd (Judge judge , int judgeId , const char* judgeName, int * judgeResults);//the array needs to be copy
 
 JudgeResult judgeRemove (Judge judge , int judgeId); // free arrray
 
-static Judge createJudge ( int judgeId , char* judgeName, int * judgeResults);
+static Judge createJudge ( int judgeId , const char* judgeName, int * judgeResults);
 
 void judgeDestroy(Judge judge){
     if(judge == NULL){
@@ -47,10 +47,10 @@ void judgeDestroy(Judge judge){
         free(current);
     }
 }
-
+/*
 Judge judgeCopy (Judge judge ){
 
-}
+}*/
 
 int judgeGetSize(Judge judge){
     int size = 0;
@@ -92,7 +92,7 @@ Judge judgeFind (Judge judge , int judgeId){
     }
     return help_iterator;
 }
-static Judge createJudge ( int judgeId , char* judgeName, int * judgeResults){
+static Judge createJudge ( int judgeId , const char* judgeName, int * judgeResults){
     Judge new = malloc(sizeof(*new));
     if (new==NULL){
         return NULL;
@@ -116,7 +116,7 @@ static Judge createJudge ( int judgeId , char* judgeName, int * judgeResults){
     }
     return  new;
 }
-JudgeResult judgeAdd (Judge judge , int judgeId , char* judgeName, int * judgeResults) {
+JudgeResult judgeAdd (Judge judge , int judgeId , const char* judgeName, int * judgeResults) {
     if(judgeName== NULL ||judgeResults==NULL){
         return JUDGE_NULL_ARGUMENT;
     }
@@ -169,4 +169,4 @@ JudgeResult judgeRemove (Judge judge , int judgeId){
         help_iterator=help_iterator->judgeNext;
     }
     return JUDGE_SUCCESS;
-}}
+}
