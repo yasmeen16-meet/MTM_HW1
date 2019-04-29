@@ -47,10 +47,10 @@ void judgeDestroy(Judge judge){
         free(current);
     }
 }
-
+/*
 Judge judgeCopy (Judge judge ){
 
-}
+}*/
 
 int judgeGetSize(Judge judge){
     int size = 0;
