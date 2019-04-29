@@ -164,4 +164,4 @@ JudgeResult judgeRemove (Judge judge , int judgeId){
         help_iterator=help_iterator->judgeNext;
     }
     return JUDGE_SUCCESS;
-}}
+}
