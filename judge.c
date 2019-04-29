@@ -33,7 +33,7 @@ JudgeResult judgeAdd (Judge judge , int judgeId , const char* judgeName, int * j
 
 JudgeResult judgeRemove (Judge judge , int judgeId); // free arrray
 
-static Judge createJudge ( int judgeId , char* judgeName, int * judgeResults);
+static Judge createJudge ( int judgeId , const char* judgeName, int * judgeResults);
 
 void judgeDestroy(Judge judge){
     if(judge == NULL){
@@ -92,7 +92,7 @@ Judge judgeFind (Judge judge , int judgeId){
     }
     return help_iterator;
 }
-static Judge createJudge ( int judgeId , char* judgeName, int * judgeResults){
+static Judge createJudge ( int judgeId , const char* judgeName, int * judgeResults){
     Judge new = malloc(sizeof(*new));
     if (new==NULL){
         return NULL;
