@@ -12,6 +12,9 @@ typedef struct state{
     char* songName;
     Map stateVotes;
     int* stateVotedScores;
+    double stateJudgesScore
+    double stateStatesScore;
+    double stateWeightedScore;
     struct state* stateNext;
 }*State;
 
@@ -68,53 +71,49 @@ static int intCompare(int* num1, int* num2);
 ///function stateCreate
 State stateCreate(int stateId, const char* stateName, const char* songName) {
     assert(stateName != NULL || songName != NULL);
-
     State new_state = malloc(sizeof(*new_state));
     if (new_state == NULL) {
         return NULL;
-    }
-    ///stateName
+    }///stateName
     int len_stateName = strlen(stateName) + 1;
     char *new_stateName = malloc(sizeof(char) * (len_stateName));
     if (new_stateName == NULL) {
         free(new_state);
         return NULL;
-    }
-    ///songName
+    }///songName
     int len_songName = strlen(songName) + 1;
     char *new_songName = malloc(sizeof(char) * (len_songName));
     if (new_songName == NULL) {
         free(new_state);
         free(new_stateName);
         return NULL;
-    }
-    ///Map stateVotes
-    //needs to be changed!!!!!!!!
-    int* (*ptrCopy)(int*)=intCopy;
-    void (*ptrFree)(int*)=intFree;
-    int (*ptrCompare)(int*,int*)=intCompare;
-    Map new_map = mapCreate(ptrCopy,ptrCopy, ptrFree,ptrFree, ptrCompare);
+    }///Map stateVotes
+    int *(*ptrCopy)(int *) =intCopy;
+    void (*ptrFree)(int *) =intFree;
+    int (*ptrCompare)(int *, int *) =intCompare;
+    Map new_map = mapCreate(ptrCopy, ptrCopy, ptrFree, ptrFree, ptrCompare);
     if (new_map == NULL) {
         free(new_state);
         free(new_stateName);
         free(new_songName);
         return NULL;
-    }
-    ///stateVotedScores
-    int* stateVotedScores = malloc(sizeof(int)*LEN);
-    if (stateVotedScores==NULL){
+    }///stateVotedScores
+    int *stateVotedScores = malloc(sizeof(int) * LEN);
+    if (stateVotedScores == NULL) {
         free(new_state);
         free(new_stateName);
         free(new_songName);
         mapDestroy(new_map);
         return NULL;
-    }
-    ///placing the fields
+    }///placing the fields
     new_state->stateId = stateId;
     new_state->stateName = new_stateName;
     new_state->songName = new_songName;
     new_state->stateVotes = new_map;
-    new_state->stateVotedScores=stateVotedScores;
+    new_state->stateVotedScores = stateVotedScores;
+    new_state->stateJudgesScore = 0.0;
+    new_state->stateStatesScore = 0.0;
+    new_state->stateWeightedScore = 0.0;
     return new_state;
 }
 
@@ -189,6 +188,7 @@ bool stateContain(State state, int stateId) {
     }
     return false;
 }
+
 
 ///function stateFind
 State stateFind(State state, int stateId) {
