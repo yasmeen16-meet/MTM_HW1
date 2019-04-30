@@ -12,7 +12,7 @@ typedef struct state{
     char* songName;
     Map stateVotes;
     int* stateVotedScores;
-    double stateJudgesScore
+    double stateJudgesScore;
     double stateStatesScore;
     double stateWeightedScore;
     struct state* stateNext;
