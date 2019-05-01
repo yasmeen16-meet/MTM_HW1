@@ -44,6 +44,15 @@ static int rankToScore(int rank){
     }
     return 1;
 }
+
+Eurovision eurovisionCreate(){
+
+    Eurovision  eurovision =malloc(sizeof(*eurovision));
+    if (eurovision==NULL){
+        return NULL;
+    }
+    return eurovision;
+}
 EurovisionResult eurovisionAddState(Eurovision eurovision, int stateId, const char *stateName, const char *songName){
     if (eurovision==NULL || stateName ==NULL || songName==NULL){
         return EUROVISION_NULL_ARGUMENT;
@@ -133,14 +142,15 @@ static bool isValidName(const char * name) {
     assert(name != NULL);
     int i = 0;
     while (name[i]) {
-        if (name[i] != ' ' || name[i] < 'a' || name[i] > 'z') {
-            return false;
+        if ( name[i] + i < 'a' || name[i] > 'z') {
+            if (name[i] != ' ' ) {
+                return false;
+            }
         }
         i++;
     }
     return true;
 }
-
 EurovisionResult eurovisionAddJudge(Eurovision eurovision, int judgeId,
                                     const char *judgeName,
                                     int *judgeResults) {
