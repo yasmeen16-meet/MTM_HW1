@@ -29,26 +29,25 @@ bool judgeContain(Judge judge , int judgeId);
 
 Judge judgeFind (Judge judge , int judgeId);
 
-JudgeResult judgeAdd (Judge judge , int judgeId , const char* judgeName, int * judgeResults);//the array needs to be copy
+JudgeResult judgeAdd (Judge judge , int judgeId , char* judgeName, int * judgeResults);//the array needs to be copy
 
 JudgeResult judgeRemove (Judge judge , int judgeId); // free arrray
 
-static Judge createJudge ( int judgeId , const char* judgeName, int * judgeResults);
+static Judge createJudge ( int judgeId , char* judgeName, int * judgeResults);
 
 void judgeDestroy(Judge judge){
     if(judge == NULL){
         return;
     }
     while (judge!=NULL){
-        Judge current = judge;
-        judge =judge->judgeNext;
-        free(current->judgeResult);
-        free(current->judgeName);
-        free(current);
+         Judge current = judge;
+         free(judge->judgeResult);
+         judge= judge->judgeNext;
+         free(current);
     }
 }
-/*
-Judge judgeCopy (Judge judge ){
+
+/*Judge judgeCopy (Judge judge ){
 
 }*/
 
@@ -92,7 +91,7 @@ Judge judgeFind (Judge judge , int judgeId){
     }
     return help_iterator;
 }
-static Judge createJudge ( int judgeId , const char* judgeName, int * judgeResults){
+static Judge createJudge ( int judgeId , char* judgeName, int * judgeResults){
     Judge new = malloc(sizeof(*new));
     if (new==NULL){
         return NULL;
@@ -116,31 +115,26 @@ static Judge createJudge ( int judgeId , const char* judgeName, int * judgeResul
     }
     return  new;
 }
-JudgeResult judgeAdd (Judge judge , int judgeId , const char* judgeName, int * judgeResults) {
+JudgeResult judgeAdd (Judge judge , int judgeId , char* judgeName, int * judgeResults) {
     if(judgeName== NULL ||judgeResults==NULL){
         return JUDGE_NULL_ARGUMENT;
-    }
-    if (judge==NULL) {
-        Judge new = createJudge(judgeId, judgeName, judgeResults);
-        if (new == NULL) {
-            return JUDGE_OUT_OF_MEMORY;
-        }
-        judge = new;
-        return JUDGE_SUCCESS;
     }
     if (judgeContain(judge,judgeId)){
         return JUDGE_ALREADY_EXISTS;
     }
-
-    Judge help_iterator = judge;
-    while (help_iterator->judgeNext != NULL) {
-        help_iterator = help_iterator->judgeNext;
-    }
-    Judge new = createJudge(judgeId, judgeName, judgeResults);
-    if (new == NULL) {
+    Judge  new =createJudge(judgeId,judgeName,judgeResults);
+    if (new==NULL){
         return JUDGE_OUT_OF_MEMORY;
     }
-    help_iterator->judgeNext = new;
+    if (judge==NULL){
+        judge=new;
+    } else {
+        Judge help_iterator = judge;
+        while (help_iterator->judgeNext != NULL) {
+            help_iterator = help_iterator->judgeNext;
+        }
+        help_iterator->judgeNext = new;
+    }
     return JUDGE_SUCCESS;
 }
 JudgeResult judgeRemove (Judge judge , int judgeId){
@@ -167,6 +161,24 @@ JudgeResult judgeRemove (Judge judge , int judgeId){
             break;
         }
         help_iterator=help_iterator->judgeNext;
+    }
+    return JUDGE_SUCCESS;
+}
+JudgeResult judgeRemoveState (Judge judge , int stateId){
+    if (judge==NULL){
+        return  JUDGE_NULL_ARGUMENT;
+    }
+    Judge  help_iterator = judge;
+    while (help_iterator!=NULL){
+        bool isDeleted = false;
+        for (int i = 0; i < LEN -1 && isDeleted==false; ++i) {
+            if (help_iterator->judgeResult[i]== stateId){
+                Judge  current = judgeFind(judge,help_iterator->judgeId);
+                judgeRemove(judge,current->judgeId);
+                isDeleted = true;
+            }
+        }
+        help_iterator= help_iterator->judgeNext;
     }
     return JUDGE_SUCCESS;
 }
