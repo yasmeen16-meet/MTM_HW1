@@ -313,3 +313,17 @@ static void intFree(int* num){
 static int intCompare(int* num1, int* num2){
     return *(num1) - *(num2);
 }
+StateResult deleteOutState (State state , int stateId){
+    if (state==NULL){
+        return STATE_NULL_ARGUMENT;
+    }
+    State help_iterator =state;
+    while (help_iterator!=NULL){
+        if (mapContains(help_iterator->stateVotes,(int *)stateId)){
+            mapRemove(help_iterator->stateVotes,(int*)stateId );
+        }
+        help_iterator=help_iterator->stateNext;
+    }
+    return  STATE_SUCCESS;
+
+}
