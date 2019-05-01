@@ -19,7 +19,81 @@ static int rankToScore(int rank);
 
 
 ////functions application
+EurovisionResult eurovisionAddState(Eurovision eurovision, int stateId, const char *stateName, const char *songName){
+    if (eurovision==NULL || stateName ==NULL || songName==NULL){
+        return EUROVISION_NULL_ARGUMENT;
+    }
+    if (stateId < 0){
+        return EUROVISION_INVALID_ID;
+    }
+    if (!isValidName(stateName)||!isValidName(songName)){
+        return EUROVISION_INVALID_NAME;
+    }
+    if(stateContain(eurovision->states,stateId)){
+        return EUROVISION_STATE_ALREADY_EXIST;
+    }
+    StateResult result = stateAdd(eurovision->states,stateId,stateName,songName);
+    if (result == STATE_OUT_OF_MEMORY){
+        //  eurovisionDestroy(eurovision);
+        return EUROVISION_OUT_OF_MEMORY;
+    }
+    return EUROVISION_SUCCESS;
+}
 
+EurovisionResult eurovisionRemoveState(Eurovision eurovision, int stateId){
+    if (eurovision==NULL ){
+        return  EUROVISION_NULL_ARGUMENT;
+    }
+    if (stateId < 0){
+        return EUROVISION_INVALID_ID;
+    }
+    if (!stateContain(eurovision->states,stateId)){
+        return EUROVISION_STATE_NOT_EXIST;
+    }
+    judgeRemoveState(eurovision->judges, stateId);
+    deleteOutState(eurovision->states,stateId);
+    stateRemove(eurovision->states,stateId);
+    return EUROVISION_SUCCESS;
+}
+
+EurovisionResult eurovisionAddVote(Eurovision eurovision, int stateGiver, int stateTaker) {
+    if (eurovision == NULL) {
+        return EUROVISION_NULL_ARGUMENT;
+    }
+    if (stateGiver < 0 || stateTaker) {
+        return EUROVISION_INVALID_ID;
+    }
+    if (!stateContain(eurovision->states, stateGiver) || !stateContain(eurovision->states, stateTaker)) {
+        return EUROVISION_STATE_NOT_EXIST;
+    }
+    if (stateGiver == stateTaker) {
+        return EUROVISION_SAME_STATE;
+    }
+    State stateGive = stateFind(eurovision->states, stateGiver);
+    Map map = stateGive->stateVotes;
+    if (mapContains(map, (int*)stateTaker)) {
+        MapResult result = mapPut(map, (int *) stateTaker, mapGet(map, (int *) (stateTaker + 1)));
+        if (result == MAP_OUT_OF_MEMORY) {
+            // eurovisionDestroy(eurovision);
+            return EUROVISION_OUT_OF_MEMORY;
+        }
+        if (result == MAP_NULL_ARGUMENT) {
+            return EUROVISION_NULL_ARGUMENT;
+        }
+    } else {
+        int j = 0;
+        MapResult result = mapPut(map, (int *) stateTaker, mapGet(map, (int *) (j + 1)));
+        if (result == MAP_OUT_OF_MEMORY) {
+            // eurovisionDestroy(eurovision);
+            return EUROVISION_OUT_OF_MEMORY;
+        }
+        if (result == MAP_NULL_ARGUMENT) {
+            return EUROVISION_NULL_ARGUMENT;
+        }
+    }
+    return EUROVISION_SUCCESS;
+
+}
 ///rankToScore function
 static int rankToScore(int rank){
 
