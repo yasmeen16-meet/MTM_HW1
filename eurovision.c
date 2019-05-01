@@ -5,7 +5,6 @@
 #include "state.c"
 #include "judge.c"
 #include "../list.h"
-#include "../map.h"
 
 
 struct eurovision_t{
