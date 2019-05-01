@@ -253,4 +253,4 @@ EurovisionResult eurovisionRemoveVote(Eurovision eurovision, int stateGiver,
         return EUROVISION_NULL_ARGUMENT;
     }
     return EUROVISION_SUCCESS;
-}}
+}
