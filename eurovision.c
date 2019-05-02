@@ -18,6 +18,20 @@ static int findScore (int* scoreArray ,int stateId);
 static EurovisionResult updateStatesScores (State state);
 static EurovisionResult updateJudgeScores (Judge judge , State state);
 static EurovisionResult calculateFinalScore (State state , int audiencePercent);
+///returns the stateId with max vote from a map of votes\
+/// needs to check if two votes amounts equal, if so returns the smaller id in number
+static int getMaxIdMap(Map map);
+///prepares the stateVotesScores array of each state
+static EurovisionResult updateStateArray(State state);
+///restarts the array values to NOMOREMAX
+static void restartArray(int* arr);
+///returns the stateId ith max votes from State (it's copy)
+static int getMaxIdState(State state_copy);
+/** Function to be used for copying a char as a data to the map */
+static char* copyDataChar(char* n);
+/** Function to be used by the map for freeing elements */
+static void freeChar(char* n);
+
 
 ////functions application
 
@@ -363,3 +377,104 @@ void printJudgesId (Eurovision eurovision){
     }
 }
 
+
+static int getMaxIdMap(Map map_copy) {
+    //assert(map_copy != NULL);
+    int *currentKey = mapGetFirst(map_copy);
+    int max_id = NOMOREMAX;
+    int max_votes = 0;
+
+    while (currentKey != NULL) {
+        int current_vote = *(int *) (mapGet(map_copy, currentKey));
+        if (current_vote > max_votes) {
+            max_votes = current_vote;
+            max_id = *currentKey;
+        } else if (current_vote == max_votes) {
+            max_id = *currentKey < max_id ? *currentKey : max_id;
+        }
+        currentKey = mapGetNext(map_copy);
+    }
+
+    return max_id;
+}
+
+static EurovisionResult updateStateArray(State state) {
+    assert(state != NULL);
+    State current_state = state;
+
+    while (current_state != NULL) {
+
+        ///creating a copy of the map consisting the votes from current_state to other states, to work on
+        Map map_copy = mapCopy(current_state->stateVotes);
+        if (map_copy == NULL) {
+            return EUROVISION_OUT_OF_MEMORY;
+        }
+        ///a pointer to the array of current_state to update the states id on
+        int* arr_scores = current_state->stateVotedScores;
+        ///restart the array to NOMOREMAX value
+        restartArray(arr_scores);
+        ///going through the array and filling it based on the votes, from max to min
+        for (int i = 0; i < LEN; i++) {
+            int max_id = getMaxIdMap(map_copy);
+            ///checking that map_copy is not NULL and there are still more states to check\
+            /// P.S if the array is already full it won't matter to map_copy since we free it in the end
+            if (max_id == NOMOREMAX) {
+                mapDestroy(map_copy);
+                return EUROVISION_SUCCESS;
+            }
+            ///we got the id of the states who got max votes\
+            /// we remove it from map_copy to continue working on it with out it, and update the array
+            mapRemove(map_copy, (int *) max_id);
+            arr_scores[i] = max_id;
+        }
+        mapDestroy(map_copy);
+        current_state = current_state->stateNext;
+    }
+    return EUROVISION_SUCCESS;
+}
+
+
+
+static void restartArray(int* arr){
+    for (int i=0; i<LEN; i++){
+        arr[i] = NOMOREMAX;
+    }
+}
+
+static int getMaxIdState(State state_copy) {
+    State current_state = state_copy;
+    double max_score = 0.0;
+    int max_id = NOMOREMAX;
+
+    while (current_state != NULL) {
+        double current_score = current_state->stateWeightedScore;
+        if (current_score > max_score) {
+            max_score = current_score;
+            max_id = current_state->stateId;
+        } else if (current_score == max_score) {
+            max_id = current_state->stateId < max_id ? current_state->stateId : max_id;
+        }
+        current_state = current_state->stateNext;
+    }
+    return max_id;
+}
+
+
+/** Function to be used for copying a char as a data to the map */
+static char* copyDataChar(char* n) {
+    if (!n) {
+        return NULL;
+    }
+    char *copy = malloc(sizeof(*copy));
+    if (!copy) {
+        return NULL;
+    }
+    *copy = * n;
+    return copy;
+}
+
+
+/** Function to be used by the map for freeing elements */
+static void freeChar(char* n) {
+    free(n);
+}
