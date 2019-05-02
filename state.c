@@ -5,7 +5,7 @@
 #include "../map.h"
 
 #define LEN 10
-
+#define NOMOREMAX -1
 typedef struct state{
     int stateId;
     char* stateName;
@@ -74,20 +74,20 @@ State stateCreate(int stateId, const char* stateName, const char* songName) {
     State new_state = malloc(sizeof(*new_state));
     if (new_state == NULL) {
         return NULL;
-    }///stateName
+    }///creating stateName
     int len_stateName = strlen(stateName) + 1;
     char *new_stateName = malloc(sizeof(char) * (len_stateName));
     if (new_stateName == NULL) {
         free(new_state);
         return NULL;
-    }///songName
+    }///creating songName
     int len_songName = strlen(songName) + 1;
     char *new_songName = malloc(sizeof(char) * (len_songName));
     if (new_songName == NULL) {
         free(new_state);
         free(new_stateName);
         return NULL;
-    }///Map stateVotes
+    }///creating Map stateVotes
     int *(*ptrCopy)(int *) =intCopy;
     void (*ptrFree)(int *) =intFree;
     int (*ptrCompare)(int *, int *) =intCompare;
@@ -97,7 +97,7 @@ State stateCreate(int stateId, const char* stateName, const char* songName) {
         free(new_stateName);
         free(new_songName);
         return NULL;
-    }///stateVotedScores
+    }///creating stateVotedScores
     int *stateVotedScores = malloc(sizeof(int) * LEN);
     if (stateVotedScores == NULL) {
         free(new_state);
@@ -105,6 +105,9 @@ State stateCreate(int stateId, const char* stateName, const char* songName) {
         free(new_songName);
         mapDestroy(new_map);
         return NULL;
+    }///restarting the array to NOMOREMAX value -1
+    for (int i = 0; i < LEN; i++) {
+        stateVotedScores[i] = NOMOREMAX;
     }///placing the fields
     new_state->stateId = stateId;
     new_state->stateName = new_stateName;
