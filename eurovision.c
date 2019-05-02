@@ -263,6 +263,61 @@ EurovisionResult eurovisionRemoveVote(Eurovision eurovision, int stateGiver,
     return EUROVISION_SUCCESS;
 }
 
+
+List eurovisionRunContest(Eurovision eurovision, int audiencePercent) {
+    if (eurovision != NULL) {
+        return NULL;
+    }
+    if (audiencePercent > 100 || audiencePercent < 1) {
+        return NULL;
+    }
+    char* (*ptrCopy)(char*) = copyDataChar;
+    void (*ptrFree)(char*) = freeChar;
+    List list = listCreate(ptrCopy, ptrFree);
+    if (list == NULL) {
+        return NULL;
+    }
+    if (eurovision->states == NULL) {
+        return list;
+    }
+    EurovisionResult result = updateStateArray(eurovision->states);
+    if (result == EUROVISION_OUT_OF_MEMORY) {
+        eurovisionDestroy(eurovision);
+        listDestroy(list);
+        return NULL;
+    }
+    updateStatesScores(eurovision->states);
+    result = updateJudgesScores(eurovision->judges, eurovision->states);
+    if (result != EUROVISION_SUCCESS) {
+        listDestroy(list);
+        return NULL;
+    }
+    calculateFinalScore(eurovision->states, audiencePercent);
+    State state_copy = stateCopy(eurovision->states);
+    if (state_copy == NULL) {
+        eurovisionDestroy(eurovision);
+        listDestroy(list);
+        return NULL;
+    }
+    while (state_copy != NULL) {
+        int max_id = getMaxIdState(state_copy);
+        State max_state = stateFind(state_copy, max_id);
+        ListResult result = listInsertLast(list, max_state->stateName);
+        if (result != LIST_SUCCESS) {
+            listDestroy(list);
+            stateDestroy(state_copy);
+            eurovisionDestroy(eurovision);
+            return NULL;
+        }
+        stateRemove(state_copy, max_id);
+        state_copy = state_copy->stateNext;
+    }
+    return list;
+}
+
+
+
+
 ///rankToScore function
 static int rankToScore(int rank){
 
@@ -360,21 +415,6 @@ static EurovisionResult calculateFinalScore (State state , int audiencePercent){
 
     }
     return EUROVISION_SUCCESS;
-}
-
-void printStateId (Eurovision eurovision){
-    State help = eurovision->states;
-    while (help!=NULL) {
-        printf("%d",help->stateId);
-        help=help->stateNext;
-    }
-}
-void printJudgesId (Eurovision eurovision){
-    Judge help = eurovision->judges;
-    while (help!=NULL) {
-        printf("%d",help->judgeId);
-        help=help->judgeNext;
-    }
 }
 
 
@@ -477,4 +517,19 @@ static char* copyDataChar(char* n) {
 /** Function to be used by the map for freeing elements */
 static void freeChar(char* n) {
     free(n);
+}
+
+void printStateId (Eurovision eurovision){
+    State help = eurovision->states;
+    while (help!=NULL) {
+        printf("%d",help->stateId);
+        help=help->stateNext;
+    }
+}
+void printJudgesId (Eurovision eurovision){
+    Judge help = eurovision->judges;
+    while (help!=NULL) {
+        printf("%d",help->judgeId);
+        help=help->judgeNext;
+    }
 }
