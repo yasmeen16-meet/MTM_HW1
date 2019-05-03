@@ -15,24 +15,26 @@ struct eurovision_t{
 static bool isValidName(const char * name);
 static int rankToScore(int rank);
 static int findScore (int* scoreArray ,int stateId);
-static EurovisionResult updateStatesScores (State state);
-static EurovisionResult updateJudgeScores (Judge judge , State state);
+static EurovisionResult updateStatesScores (State* state);
+static EurovisionResult updateJudgeScores (Judge judge , State* state);
 static EurovisionResult calculateFinalScore (State state , int audiencePercent);
 ///returns the stateId with max vote from a map of votes\
 /// needs to check if two votes amounts equal, if so returns the smaller id in number
-static int getMaxIdMap(Map map);
+static int getMaxIdMap(Map* map);
 ///prepares the stateVotesScores array of each state
-static EurovisionResult updateStateArray(State state);
+static EurovisionResult updateStateArray(State* state);
 ///restarts the array values to NOMOREMAX
 static void restartArray(int* arr);
 ///returns the stateId ith max votes from State (it's copy)
-static int getMaxIdState(State state_copy);
+static int getMaxIdState(State* state_copy);
 /** Function to be used for copying a char as a data to the map */
 static char* copyDataChar(char* n);
 /** Function to be used by the map for freeing elements */
 static void freeChar(char* n);
-
-
+static void printArray (int* scoreArray );
+static void printStatesScore (Eurovision eurovision);
+static void printJudgesScore (Eurovision eurovision);
+static void printFinalScore (Eurovision eurovision);
 ////functions application
 
 Eurovision eurovisionCreate(){
@@ -210,7 +212,8 @@ EurovisionResult eurovisionAddVote(Eurovision eurovision, int stateGiver, int st
         return EUROVISION_SUCCESS;
     }
 
-    int data =*((int*)(mapGet(map,  &stateTaker) )) + 1;
+    int data =*((int*)(mapGet(map,  &stateTaker) )) +1;
+    mapGetFirst(map);
     MapResult result = mapPut(map, &stateTaker,&data);
     if (result == MAP_OUT_OF_MEMORY) {
         eurovisionDestroy(eurovision);
@@ -265,42 +268,53 @@ EurovisionResult eurovisionRemoveVote(Eurovision eurovision, int stateGiver,
 
 
 List eurovisionRunContest(Eurovision eurovision, int audiencePercent) {
-    if (eurovision != NULL) {
+
+    if (eurovision == NULL) {
+
         return NULL;
     }
+
     if (audiencePercent > 100 || audiencePercent < 1) {
         return NULL;
     }
+
     char* (*ptrCopy)(char*) = copyDataChar;
     void (*ptrFree)(char*) = freeChar;
     List list = listCreate(ptrCopy, ptrFree);
     if (list == NULL) {
+
         return NULL;
     }
+
     if (eurovision->states == NULL) {
         return list;
     }
-    EurovisionResult result = updateStateArray(eurovision->states);
+    EurovisionResult result = updateStateArray(&eurovision->states);
     if (result == EUROVISION_OUT_OF_MEMORY) {
         eurovisionDestroy(eurovision);
         listDestroy(list);
         return NULL;
     }
-    updateStatesScores(eurovision->states);
-    result = updateJudgesScores(eurovision->judges, eurovision->states);
+    //////////////////////////////
+    updateStatesScores(&eurovision->states);
+    printStatesScore(eurovision);
+    result = updateJudgeScores(eurovision->judges, &eurovision->states);
     if (result != EUROVISION_SUCCESS) {
         listDestroy(list);
         return NULL;
     }
+    printJudgesScore(eurovision);
     calculateFinalScore(eurovision->states, audiencePercent);
+    printFinalScore(eurovision);
     State state_copy = stateCopy(eurovision->states);
     if (state_copy == NULL) {
+        printf("updated");
         eurovisionDestroy(eurovision);
         listDestroy(list);
         return NULL;
     }
     while (state_copy != NULL) {
-        int max_id = getMaxIdState(state_copy);
+        int max_id = getMaxIdState(&state_copy);
         State max_state = stateFind(state_copy, max_id);
         ListResult result = listInsertLast(list, max_state->stateName);
         if (result != LIST_SUCCESS) {
@@ -309,9 +323,10 @@ List eurovisionRunContest(Eurovision eurovision, int audiencePercent) {
             eurovisionDestroy(eurovision);
             return NULL;
         }
-        stateRemove(state_copy, max_id);
+        stateRemove(&state_copy, max_id);
         state_copy = state_copy->stateNext;
     }
+
     return list;
 }
 
@@ -358,14 +373,15 @@ static int findScore (int* scoreArray ,int stateId){
 }
 
 ///updates the stateScores according to the state Array
-static EurovisionResult updateStatesScores (State state){
-    assert(state!=NULL);
-    State  help_iterator = state;
+static EurovisionResult updateStatesScores (State* state){
+    assert(*state!=NULL);
+    State  help_iterator = *state;
     while (help_iterator!=NULL){
-        State help2 = state;
+        State help2 = *state;
         double  sum =0 ;
         while (help2!=NULL){
             if (help_iterator->stateId==help2->stateId){
+                help2=help2->stateNext;
                 continue;
             }
             int current=findScore(help2->stateVotedScores,help_iterator->stateId);
@@ -374,19 +390,19 @@ static EurovisionResult updateStatesScores (State state){
             }
             help2=help2->stateNext;
         }
-        help_iterator->stateStatesScore=sum/(stateGetSize(state)-1);
+        help_iterator->stateStatesScore=sum/(stateGetSize(*state)-1);
         help_iterator= help_iterator->stateNext;
     }
     return  EUROVISION_SUCCESS;
 }
 
 /// updates average the state score according to the judge array
-static EurovisionResult updateJudgeScores (Judge judge , State state){
-    if (judge ==NULL || state==NULL){
+static EurovisionResult updateJudgeScores (Judge judge , State* state){
+    if (judge ==NULL || *state==NULL){
         return  EUROVISION_NULL_ARGUMENT;
     }
 
-    State  help_iterator = state;
+    State  help_iterator = *state;
     while (help_iterator!=NULL){
         Judge help2 = judge;
         double  sum =0 ;
@@ -418,30 +434,40 @@ static EurovisionResult calculateFinalScore (State state , int audiencePercent){
 }
 
 
-static int getMaxIdMap(Map map_copy) {
-    //assert(map_copy != NULL);
-    int *currentKey = mapGetFirst(map_copy);
+static int getMaxIdMap(Map* map_copy) {
+    assert(map_copy != NULL);
+
+    mapGetFirst(*map_copy);
+    if ((*map_copy)->iterator==NULL){
+        return NOMOREMAX;
+    }
     int max_id = NOMOREMAX;
     int max_votes = 0;
-
-    while (currentKey != NULL) {
-        int current_vote = *(int *) (mapGet(map_copy, currentKey));
-        if (current_vote > max_votes) {
-            max_votes = current_vote;
-            max_id = *currentKey;
-        } else if (current_vote == max_votes) {
-            max_id = *currentKey < max_id ? *currentKey : max_id;
+    while ((*map_copy)->iterator->next!=NULL){
+        if (*((int*)(*map_copy)->iterator->data)> max_votes){
+            max_votes = *((int*)(*map_copy)->iterator->data);
+            max_id = *((int*) (*map_copy)->iterator->key);
+        }else if (*((int*)(*map_copy)->iterator->data)== max_votes){
+            max_id =  *((int*) (*map_copy)->iterator->key) < max_id?
+                      *((int*) (*map_copy)->iterator->key):max_id;
         }
-        currentKey = mapGetNext(map_copy);
+        (*map_copy)->iterator = (*map_copy)->iterator->next;
     }
 
+    if (*((int*)(*map_copy)->iterator->data)> max_votes){
+        max_votes = *((int*)(*map_copy)->iterator->data);
+        max_id = *((int*) (*map_copy)->iterator->key);
+    }else if (*((int*)(*map_copy)->iterator->data)== max_votes){
+        max_id =  *((int*) (*map_copy)->iterator->key) < max_id?
+                  *((int*) (*map_copy)->iterator->key):max_id;
+    }
     return max_id;
 }
 
-static EurovisionResult updateStateArray(State state) {
-    assert(state != NULL);
-    State current_state = state;
 
+static EurovisionResult updateStateArray(State *state) {
+    assert(*state != NULL);
+    State current_state = *state;
     while (current_state != NULL) {
 
         ///creating a copy of the map consisting the votes from current_state to other states, to work on
@@ -455,18 +481,23 @@ static EurovisionResult updateStateArray(State state) {
         restartArray(arr_scores);
         ///going through the array and filling it based on the votes, from max to min
         for (int i = 0; i < LEN; i++) {
-            int max_id = getMaxIdMap(map_copy);
+            int max_id = getMaxIdMap(&map_copy);
             ///checking that map_copy is not NULL and there are still more states to check\
             /// P.S if the array is already full it won't matter to map_copy since we free it in the end
             if (max_id == NOMOREMAX) {
-                mapDestroy(map_copy);
-                return EUROVISION_SUCCESS;
+                //mapDestroy(map_copy);
+                break;
             }
+
             ///we got the id of the states who got max votes\
             /// we remove it from map_copy to continue working on it with out it, and update the array
-            mapRemove(map_copy, (int *) max_id);
             arr_scores[i] = max_id;
+            mapGetFirst(map_copy);
+            mapRemove(map_copy, &max_id);
+
         }
+        printf("\n");
+        printArray(arr_scores);
         mapDestroy(map_copy);
         current_state = current_state->stateNext;
     }
@@ -481,8 +512,8 @@ static void restartArray(int* arr){
     }
 }
 
-static int getMaxIdState(State state_copy) {
-    State current_state = state_copy;
+static int getMaxIdState(State* state_copy) {
+    State current_state = *state_copy;
     double max_score = 0.0;
     int max_id = NOMOREMAX;
 
@@ -531,5 +562,52 @@ void printJudgesId (Eurovision eurovision){
     while (help!=NULL) {
         printf("%d",help->judgeId);
         help=help->judgeNext;
+    }
+}
+void printVotes (Eurovision eurovision , int stateId){
+    State state = stateFind(eurovision->states,stateId);
+    if (state==NULL){
+        printf("Null state");
+    }
+    Map map = state->stateVotes;
+    if (mapGetFirst(map)==NULL){
+        printf("NULL");
+    }
+    int * currentKey= mapGetFirst(map);
+    while (currentKey!=NULL){
+        int * data = mapGet(map,&currentKey);
+        printf("%d",*data);
+        currentKey= mapGetNext(map);
+    }
+
+}
+static void printArray (int* scoreArray ){
+    //assert
+    int i=0;
+    while (i<LEN){
+        printf("%d",scoreArray[i]);
+        i++;
+    }
+}
+
+static void printStatesScore (Eurovision eurovision){
+    State state = eurovision->states;
+    while (state!=    NULL){
+        printf("%d ,%f \n" ,state->stateId , state->stateStatesScore);
+        state=state->stateNext;
+    }
+}
+static void printJudgesScore (Eurovision eurovision){
+    State state = eurovision->states;
+    while (state!=    NULL){
+        printf("%d ,%f \n" ,state->stateId , state->stateJudgesScore);
+        state=state->stateNext;
+    }
+}
+static void printFinalScore (Eurovision eurovision){
+    State state = eurovision->states;
+    while (state!=    NULL){
+        printf("%d ,%f \n" ,state->stateId , state->stateWeightedScore);
+        state=state->stateNext;
     }
 }
