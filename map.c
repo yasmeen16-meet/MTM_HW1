@@ -240,13 +240,22 @@ bool mapContains(Map map, MapKeyElement element) {
     if (map == NULL || element == NULL) {
         return false;
     }
+    if (map->iterator==NULL){
+        return false;
+    }
+    Node current = map->iterator;
     mapGetFirst(map);
-    Node iterator_help = NULL;
-    for (iterator_help = map->iterator; iterator_help != NULL; iterator_help = iterator_help->next) {
+
+    Node iterator_help  = map->iterator;
+    moveIteratorToInitialPosition(map,current);
+
+    while(iterator_help != NULL){
         if (map->compare_keys(element, iterator_help->key) == 0) {
             return true;
         }
+        iterator_help = iterator_help->next;
     }
+
     return false;
 }
 
