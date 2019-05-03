@@ -48,3 +48,82 @@ static int getMaxIdMap(Map* map_copy) {
     }
     return max_id;
 }
+
+
+
+
+
+MapResult mapRemove(Map map, MapKeyElement keyElement){
+    if(map==NULL || keyElement==NULL){
+        return MAP_NULL_ARGUMENT;
+    }
+    if (!mapContains(map,keyElement)){
+        return MAP_ITEM_DOES_NOT_EXIST;
+    }
+    if (map->size <=1){
+        return  mapClear(map);
+    }
+    mapGetFirst(map);
+    if(map->compare_keys(keyElement,map->iterator->key)==0) {
+        Node toDelete =map->iterator;
+        map->iterator=map->iterator->next;
+        map->iterator->previous=NULL;
+        map->free_data(toDelete->data);
+        map->free_key(toDelete->key);
+        free(toDelete);
+        map->size--;
+        printf("after free \n ");
+        return MAP_SUCCESS;
+    }
+
+    Node help_iterator = map->iterator;
+    while (help_iterator->next != NULL){
+        if (map->compare_keys(keyElement, help_iterator->key)==0){
+            Node toDelete = help_iterator;
+            help_iterator=help_iterator->next;
+            help_iterator->previous=help_iterator->previous->previous;
+            help_iterator= help_iterator->previous;
+            help_iterator->next=help_iterator->next->next;
+            map->free_data(help_iterator->data);
+            map->free_key(help_iterator->key);
+            toDelete->next=NULL;
+            toDelete->previous=NULL;
+            free(toDelete);
+            map->size--;
+            mapGetFirst(map);
+
+            return MAP_SUCCESS;
+        }
+    }
+
+    /*while (map->iterator->next!=NULL){
+        printf("while \n");
+        if (map->compare_keys(keyElement,map->iterator->key)==0){
+
+            Node toDelete = map->iterator;
+            map->iterator=map->iterator->next;
+            map->iterator->previous=map->iterator->previous->previous;
+            map->iterator= map->iterator->previous;
+            map->iterator->next=map->iterator->next->next;
+            map->free_data(map->iterator->data);
+            map->free_key(map->iterator->key);
+            toDelete->next=NULL;
+            toDelete->previous=NULL;
+            free(toDelete);
+            map->size--;
+            mapGetFirst(map);
+
+            return MAP_SUCCESS;
+        }
+        map->iterator=map->iterator->next;
+    }*/
+    Node toDelete = map->iterator;
+    map->iterator=map->iterator->previous;
+    map->iterator->next=NULL;
+    map->free_data(map->iterator->data);
+    map->free_key(map->iterator->key);
+    free(toDelete);
+
+    map->size--;
+    return MAP_SUCCESS;
+}
