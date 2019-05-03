@@ -4,7 +4,6 @@
 #include "map.h"
 #define EMPTY -1
 
-
 typedef struct node {
     struct node* previous;
     MapKeyElement key ;
@@ -22,6 +21,7 @@ struct Map_t{
     compareMapKeyElements compare_keys ;
 };
 
+static void moveIteratorToInitialPosition(Map map, Node initial_position) ;
 
 Map mapCreate(copyMapDataElements copyDataElement,copyMapKeyElements copyKeyElement,freeMapDataElements freeDataElement,
         freeMapKeyElements freeKeyElement,compareMapKeyElements compareKeyElements){
@@ -74,25 +74,24 @@ static Node node_Create (Map map ,MapKeyElement keyElement,  MapDataElement data
     }
     return node;
 }
-static MapResult edit_Data(Map map ,MapKeyElement keyElement,  MapDataElement dataElement){
-    mapGetFirst(map);
-    Node ptr =map->iterator;
-    while (ptr!=NULL){
-        if (map->compare_keys(keyElement  , ptr->key)==0){
-            MapDataElement data = map->copy_data(dataElement);
+static MapResult edit_Data(Map* map, Node* iterator ,MapKeyElement keyElement,  MapDataElement dataElement){
+    //mapGetFirst(map);
+//    Node ptr = *iterator;
+    while (*iterator!=NULL){
+        if ((*map)->compare_keys(keyElement  , (*iterator)->key)==0){
+            MapDataElement data = (*map)->copy_data(dataElement);
             if (data==NULL){
                 return MAP_OUT_OF_MEMORY;
             }
-            map->free_data(map->iterator->data);
-            ptr->data=data;
+            (*map)->free_data((*iterator)->data);
+            (*iterator)->data=data;
             break;
         }
-        ptr=ptr->next;
+        (*iterator)=(*iterator)->next;
     }
-
     return MAP_SUCCESS;
 }
-static void moveIteratorToInitialPosition(Map map, Node initial_position) ;
+
 static MapResult add_key(Map map ,MapKeyElement key ,MapDataElement data){
     Node node = node_Create(map,key,data);
     if (node==NULL){
@@ -102,8 +101,10 @@ static MapResult add_key(Map map ,MapKeyElement key ,MapDataElement data){
         map->iterator=node;
         return MAP_SUCCESS;
     }
+    Node current = map->iterator;
     mapGetFirst(map);
     Node ptr = map->iterator;
+    moveIteratorToInitialPosition(map,current);
     while (ptr!=NULL){
         if (map->compare_keys(ptr->key,key)>0){
             node->next=ptr;
@@ -139,8 +140,9 @@ MapResult mapPut(Map map, MapKeyElement keyElement, MapDataElement dataElement){
         return MAP_NULL_ARGUMENT;
     }
     if (mapContains(map,keyElement)==true) {
-
-        MapResult result = edit_Data(map, keyElement, dataElement);
+        mapGetFirst(map);
+        MapResult result = edit_Data(&map,&map->iterator, keyElement, dataElement);
+        mapGetFirst(map);
         return result;
     }
     MapResult result=add_key(map,keyElement,dataElement);
@@ -161,29 +163,52 @@ MapResult mapRemove(Map map, MapKeyElement keyElement){
     if (map->size <=1){
         return  mapClear(map);
     }
+    mapGetFirst(map);
+    if(map->compare_keys(keyElement,map->iterator->key)==0) {
+        Node toDelete =map->iterator;
+        map->iterator=map->iterator->next;
+        map->iterator->previous=NULL;
+        map->free_data(toDelete->data);
+        map->free_key(toDelete->key);
+        free(toDelete);
+        map->size--;
+        return MAP_SUCCESS;
+    }
+
     while (map->iterator->next!=NULL){
         if (map->compare_keys(keyElement,map->iterator->key)==0){
-            map->free_data(map->iterator->data);
-            map->free_key(map->iterator->key);
-            if(map->iterator->previous==NULL) {
-                map->iterator=map->iterator->next;
-                map->iterator->previous=NULL;
-            } else{
-                map->iterator=map->iterator->next;
-                map->iterator->previous=map->iterator->previous->previous;
-                map->iterator= map->iterator->previous->previous;
-                map->iterator->next=map->iterator->next->next;
-            }
+
+            Node toDelete = map->iterator;
+            map->iterator=map->iterator->next;
+            map->iterator->previous=map->iterator->previous->previous;
+            map->iterator= map->iterator->previous;
+
+            map->iterator->next=map->iterator->next->next;
+
+            map->free_data(toDelete->data);
+            map->free_key(toDelete->key);
+
+            toDelete->next=NULL;
+            toDelete->previous=NULL;
+            free(toDelete);
             map->size--;
+            mapGetFirst(map);
             return MAP_SUCCESS;
         }
         map->iterator=map->iterator->next;
     }
+    Node toDelete = map->iterator;
     map->iterator=map->iterator->previous;
     map->iterator->next=NULL;
+    map->free_data(toDelete->data);
+    map->free_key(toDelete->key);
+    free(toDelete);
+
     map->size--;
     return MAP_SUCCESS;
 }
+
+
 MapKeyElement mapGetNext(Map map){
     if (map==NULL|| map->iterator==NULL||map->iterator->next==NULL){
         return NULL;
@@ -245,14 +270,16 @@ bool mapContains(Map map, MapKeyElement element) {
     }
     Node current = map->iterator;
     mapGetFirst(map);
-
     Node iterator_help  = map->iterator;
-    moveIteratorToInitialPosition(map,current);
+    ///main iterator goes to the first key
 
     while(iterator_help != NULL){
         if (map->compare_keys(element, iterator_help->key) == 0) {
+
+
             return true;
         }
+
         iterator_help = iterator_help->next;
     }
 
@@ -296,7 +323,7 @@ MapDataElement  mapGet(Map map, MapKeyElement keyElement) {
             break;
         }
     }
-    return data;
+ return data;
 }
 
 ///mapGetFirst function:
