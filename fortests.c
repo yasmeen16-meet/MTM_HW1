@@ -163,3 +163,57 @@ static char* strCat(char *dest, char *src)
     *str12 = '\0';
     return dest;
 }
+State stateCreate(int stateId, const char* stateName, const char* songName) {
+    assert(stateName != NULL || songName != NULL);
+    State new_state = malloc(sizeof(*new_state));
+    if (new_state == NULL) {
+        return NULL;
+    }///stateName
+    int len_stateName = strlen(stateName) + 1;
+    new_state->stateName = malloc(sizeof(char) * (len_stateName));
+    if (new_state->stateName == NULL) {
+        free(new_state);
+        return NULL;
+    }
+    strcpy(new_state->stateName,stateName);
+    ///songName
+    int len_songName = strlen(songName) + 1;
+    new_state->songName= malloc(sizeof(char) * (len_songName));
+    if (new_state->songName == NULL) {
+        free(new_state);
+        free(new_state->stateName);
+        return NULL;
+    }
+    strcpy(new_state->songName,songName);
+    ///Map stateVotes
+    int *(*ptrCopy)(int *) =intCopy;
+    void (*ptrFree)(int *) =intFree;
+    int (*ptrCompare)(int *, int *) =intCompare;
+    Map new_map = mapCreate(ptrCopy, ptrCopy, ptrFree, ptrFree, ptrCompare);
+    if (new_map == NULL) {
+        free(new_state);
+        free(new_state->stateName);
+        free(new_state->songName);
+        return NULL;
+    }///stateVotedScores
+    int *stateVotedScores = malloc(sizeof(int) * LEN);
+    if (stateVotedScores == NULL) {
+        free(new_state);
+        free(new_state->stateName);
+        free(new_state->songName);
+        mapDestroy(new_map);
+        return NULL;
+    }
+    for (int i = 0; i <LEN ; ++i) {
+        stateVotedScores[i]=NOMOREMAX;
+    }
+    ///placing the fields
+    new_state->stateId = stateId;
+    new_state->stateVotes = new_map;
+    new_state->stateVotedScores = stateVotedScores;
+    new_state->stateJudgesScore = 0.0;
+    new_state->stateStatesScore = 0.0;
+    new_state->stateWeightedScore = 0.0;
+    new_state->stateNext=NULL;
+    return new_state;
+}
