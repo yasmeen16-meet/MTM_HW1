@@ -72,33 +72,37 @@ State stateCreate(int stateId, const char* stateName, const char* songName) {
         return NULL;
     }///stateName
     int len_stateName = strlen(stateName) + 1;
-    char *new_stateName = malloc(sizeof(char) * (len_stateName));
-    if (new_stateName == NULL) {
+     new_state->stateName = malloc(sizeof(char) * (len_stateName));
+    if (new_state->stateName == NULL) {
         free(new_state);
         return NULL;
-    }///songName
+    }
+    strcpy_s(new_state->stateName,sizeof(char) * (len_stateName),stateName);
+    ///songName
     int len_songName = strlen(songName) + 1;
-    char *new_songName = malloc(sizeof(char) * (len_songName));
-    if (new_songName == NULL) {
+    new_state->songName= malloc(sizeof(char) * (len_songName));
+    if (new_state->songName == NULL) {
         free(new_state);
-        free(new_stateName);
+        free(new_state->stateName);
         return NULL;
-    }///Map stateVotes
+    }
+    strcpy_s(new_state->songName,sizeof(char) * (len_songName),songName);
+    ///Map stateVotes
     int *(*ptrCopy)(int *) =intCopy;
     void (*ptrFree)(int *) =intFree;
     int (*ptrCompare)(int *, int *) =intCompare;
     Map new_map = mapCreate(ptrCopy, ptrCopy, ptrFree, ptrFree, ptrCompare);
     if (new_map == NULL) {
         free(new_state);
-        free(new_stateName);
-        free(new_songName);
+        free(new_state->stateName);
+        free(new_state->songName);
         return NULL;
     }///stateVotedScores
     int *stateVotedScores = malloc(sizeof(int) * LEN);
     if (stateVotedScores == NULL) {
         free(new_state);
-        free(new_stateName);
-        free(new_songName);
+        free(new_state->stateName);
+        free(new_state->songName);
         mapDestroy(new_map);
         return NULL;
     }
@@ -106,9 +110,8 @@ State stateCreate(int stateId, const char* stateName, const char* songName) {
         stateVotedScores[i]=NOMOREMAX;
     }
     ///placing the fields
+    new_state->flag=0;
     new_state->stateId = stateId;
-    new_state->stateName = new_stateName;
-    new_state->songName = new_songName;
     new_state->stateVotes = new_map;
     new_state->stateVotedScores = stateVotedScores;
     new_state->stateJudgesScore = 0.0;
@@ -117,6 +120,7 @@ State stateCreate(int stateId, const char* stateName, const char* songName) {
     new_state->stateNext=NULL;
     return new_state;
 }
+
 
 ///destroying one singal state
 void stateSingalDestroy(State stateToDelete){
