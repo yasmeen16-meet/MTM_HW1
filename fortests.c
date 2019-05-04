@@ -103,3 +103,63 @@ MapResult mapRemove2(Map* map, int max_id){
     return MAP_SUCCESS;
 }
 
+
+
+
+List eurovisionRunGetFriendlyStates(Eurovision eurovision){
+    if (eurovision == NULL) {
+        return NULL;
+    }
+    char* (*ptrCopy)(char*) = copyDataChar;
+    void (*ptrFree)(char*) = freeChar;
+    List list = listCreate(ptrCopy, ptrFree);
+    if (list == NULL) {
+        return NULL;
+    }
+    if (eurovision->states == NULL) {
+        return list;
+    }
+    updateStateArray(eurovision->states);
+    State current_state=eurovision->states;
+    while (current_state!=NULL){
+        int current_id = current_state->stateId;
+        int first_id = current_state->stateVotedScores[0];
+        if (first_id == NOMOREMAX){
+            continue;
+        }
+
+        State first_state = stateFind(eurovision->states, first_id);
+        if (current_id == first_state->stateVotedScores[0]) {
+            char* str1= (strcmp((current_state->stateName), (first_state->stateName)) < 0)
+                    ? current_state->stateName: first_state->stateName;
+            char* str2= (str1 == current_state->stateName)?(first_state->stateName):(current_state->stateName);
+            int len = strlen(current_state->stateName) + strlen(first_state->stateName) +4;
+            char* final_str = malloc(sizeof(char)*len);
+            if (final_str == NULL){
+                listDestroy(list);
+                return NULL;
+            }
+            strCat(final_str, str1);
+            strCat(final_str, " - ");
+            strCat(final_str, str2);
+            listInsertLast(list, final_str);
+        }
+        current_state=current_state->stateNext;
+    }
+    ////////more code needed///////////\
+    /// t o   s o r t   t h e   l i s t   i t s e l f ////
+
+}
+
+///connecting src string to dest string
+static char* strCat(char *dest, char *src)
+{
+    char *str12 = dest + strlen(dest);
+    while (*src != '\0') {
+        *str12 = * src;
+        str12++;
+        src++;
+    }
+    *str12 = '\0';
+    return dest;
+}
