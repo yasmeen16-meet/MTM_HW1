@@ -33,3 +33,5 @@ static void printArray (int* scoreArray );
 static void printStatesScore (Eurovision eurovision);
 static void printJudgesScore (Eurovision eurovision);
 static void printFinalScore (Eurovision eurovision);
+static char* strCat(char *dest, char *src);
+void sortStrings(List listOfSrtings);
