@@ -35,6 +35,7 @@ static void printJudgesScore (Eurovision eurovision);
 static void printFinalScore (Eurovision eurovision);
 static char* strCat(char *dest, char *src);
 void sortStrings(List listOfSrtings);
+static int compareStrings(char* str1 , char* str2);
 
 
 ////functions application
@@ -534,6 +535,56 @@ List eurovisionRunAudienceFavorite(Eurovision eurovision) {
     return list;
 }*/
 
+List eurovisionRunGetFriendlyStates(Eurovision eurovision){
+    if (eurovision == NULL) {
+        return NULL;
+    }
+
+    List list = listCreate(copyDataChar,freeChar);
+    if (list == NULL) {
+        return NULL;
+    }
+    if (eurovision->states == NULL) {
+        return list;
+    }
+    updateStateArray(&eurovision->states);
+    State current_state=eurovision->states;
+    while (current_state!=NULL){
+        int current_id = current_state->stateId;
+        int first_id = current_state->stateVotedScores[0];
+        if (first_id != NOMOREMAX){
+            State first_state = stateFind(eurovision->states, first_id);
+            if (current_id == first_state->stateVotedScores[0]&&current_state->flag==0) {
+            char *str1 = (strcmp((current_state->stateName), (first_state->stateName)) < 0)
+                         ? current_state->stateName : first_state->stateName;
+            char *str2 = (str1 == current_state->stateName) ? (first_state->stateName) : (current_state->stateName);
+            int len = strlen(current_state->stateName) + strlen(first_state->stateName) + 4;
+            char *final_str = malloc(sizeof(char) * len);
+                if (final_str == NULL) {
+                    listDestroy(list);
+                    return NULL;
+                }
+
+                strcpy_s(final_str, sizeof(char)*(strlen(str1)+1),str1);
+                strCat(final_str, " - ");
+                strCat(final_str, str2);
+                listInsertLast(list, final_str);
+                current_state->flag=1;
+                first_state->flag=1;
+          }
+        }
+        current_state=current_state->stateNext;
+    }
+    sortStrings(list);
+    return list;
+}
+
+static int compareStrings(char* str1 , char* str2){
+    return  strcmp(&str1[0], (&str2[0])) ;
+}
+void sortStrings(List listOfSrtings) {
+      listSort(listOfSrtings,compareStrings);
+}
 
 static int getMaxIdState(State state_copy) {
     State current_state = state_copy;
