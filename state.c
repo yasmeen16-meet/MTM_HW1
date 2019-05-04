@@ -20,7 +20,6 @@ typedef struct state{
     struct state* stateNext;
 }*State;
 
-
 typedef enum StateResult_t{
     STATE_SUCCESS,
     STATE_NULL_ARGUMENT,
@@ -29,13 +28,12 @@ typedef enum StateResult_t{
     STATE_NOT_EXIST,
 }StateResult;
 
-///
+
 State stateCreate(int stateId, const char* stateName, const char* songName);
 
 ///destroying one singal state
 void stateSingalDestroy(State stateToDelete);
 
-///
 void stateDestroy(State state);
 
 ///uses mapCopy
@@ -44,10 +42,8 @@ State stateCopy(State state);
 ///needs help_iterator
 int stateGetSize(State state);
 
-///
 bool stateContain(State state, int stateId);
 
-///
 State stateFind(State state, int stateId);
 
 ///uses mapCreate
@@ -59,14 +55,12 @@ StateResult stateAddWithMap(State state, int stateId, const char* stateName, con
 ///uses mapDestroy
 StateResult stateRemove(State* state, int stateId);
 
-
-
 ///additional functions
 static int* intCopy(int* num);
 static void intFree(int* num);
 static int intCompare(int* num1, int* num2);
 
-
+/////////////////
 
 
 ///applications of the functions:
