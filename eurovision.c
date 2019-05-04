@@ -686,3 +686,14 @@ static void printFinalScore (Eurovision eurovision){
     }
 }
 
+static char* strCat(char *dest, char *src)
+{
+    char *str12 = dest + strlen(dest);
+    while (*src != '\0') {
+        *str12 = * src;
+        str12++;
+        src++;
+    }
+    *str12 = '\0';
+    return dest;
+}
