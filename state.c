@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "../map.h"
+#include "map.c"
 
 #define LEN 10
 #define NOMOREMAX -1
@@ -49,13 +49,13 @@ bool stateContain(State state, int stateId);
 State stateFind(State state, int stateId);
 
 ///uses mapCreate
-StateResult stateAdd(State state, int stateId, const char* stateName, const char* songName);
+StateResult stateAdd(State* state, int stateId, const char* stateName, const char* songName);
 
 ///uses stateAdd
 StateResult stateAddWithMap(State state, int stateId, const char* stateName, const char* songName, Map stateVotes);
 
 ///uses mapDestroy
-StateResult stateRemove(State state, int stateId);
+StateResult stateRemove(State* state, int stateId);
 
 
 
@@ -74,20 +74,20 @@ State stateCreate(int stateId, const char* stateName, const char* songName) {
     State new_state = malloc(sizeof(*new_state));
     if (new_state == NULL) {
         return NULL;
-    }///creating stateName
+    }///stateName
     int len_stateName = strlen(stateName) + 1;
     char *new_stateName = malloc(sizeof(char) * (len_stateName));
     if (new_stateName == NULL) {
         free(new_state);
         return NULL;
-    }///creating songName
+    }///songName
     int len_songName = strlen(songName) + 1;
     char *new_songName = malloc(sizeof(char) * (len_songName));
     if (new_songName == NULL) {
         free(new_state);
         free(new_stateName);
         return NULL;
-    }///creating Map stateVotes
+    }///Map stateVotes
     int *(*ptrCopy)(int *) =intCopy;
     void (*ptrFree)(int *) =intFree;
     int (*ptrCompare)(int *, int *) =intCompare;
@@ -97,7 +97,7 @@ State stateCreate(int stateId, const char* stateName, const char* songName) {
         free(new_stateName);
         free(new_songName);
         return NULL;
-    }///creating stateVotedScores
+    }///stateVotedScores
     int *stateVotedScores = malloc(sizeof(int) * LEN);
     if (stateVotedScores == NULL) {
         free(new_state);
@@ -105,10 +105,11 @@ State stateCreate(int stateId, const char* stateName, const char* songName) {
         free(new_songName);
         mapDestroy(new_map);
         return NULL;
-    }///restarting the array to NOMOREMAX value -1
-    for (int i = 0; i < LEN; i++) {
-        stateVotedScores[i] = NOMOREMAX;
-    }///placing the fields
+    }
+    for (int i = 0; i <LEN ; ++i) {
+        stateVotedScores[i]=NOMOREMAX;
+    }
+    ///placing the fields
     new_state->stateId = stateId;
     new_state->stateName = new_stateName;
     new_state->songName = new_songName;
@@ -117,6 +118,7 @@ State stateCreate(int stateId, const char* stateName, const char* songName) {
     new_state->stateJudgesScore = 0.0;
     new_state->stateStatesScore = 0.0;
     new_state->stateWeightedScore = 0.0;
+    new_state->stateNext=NULL;
     return new_state;
 }
 
@@ -182,11 +184,13 @@ bool stateContain(State state, int stateId) {
     if (state == NULL) {
         return false;
     }
+
     State help_iterator = state;
     while (help_iterator != NULL) {
         if (help_iterator->stateId == stateId) {
             return true;
         }
+
         help_iterator = help_iterator->stateNext;
     }
     return false;
@@ -209,26 +213,26 @@ State stateFind(State state, int stateId) {
 }
 
 ///uses mapCreate
-StateResult stateAdd(State state, int stateId, const char* stateName, const char* songName){
+StateResult stateAdd(State* state , int stateId, const char* stateName, const char* songName){
     if (stateName==NULL || songName==NULL){
         return STATE_NULL_ARGUMENT;
     }
     ///if the state is empty and we are adding the first state
-    if (state == NULL){
+    if (*(state) == NULL){
         State stateToAdd = stateCreate(stateId, stateName, songName);
         if (stateToAdd==NULL){
             return STATE_OUT_OF_MEMORY;
         }
-        state = stateToAdd;
+        *(state) = stateToAdd;
         return STATE_SUCCESS;
     }
     ///the state is not empty
     ///checking if the stateId already exists
-    if (stateContain(state, stateId)){
+    if (stateContain(*state, stateId)){
         return STATE_ALREADY_EXISTS;
     }
     ///the state does not exist, thus it needs to be added
-    State help_iterator = state;
+    State help_iterator = *state;
     ///bringing the help_iterator to the final state
     while (help_iterator->stateNext!=NULL) {
         help_iterator = help_iterator->stateNext;
@@ -246,7 +250,7 @@ StateResult stateAddWithMap(State state, int stateId, const char* stateName, con
     if (stateName==NULL || songName == NULL || stateVotes==NULL) {
         return STATE_NULL_ARGUMENT;
     }
-    StateResult result = stateAdd(state, stateId, stateName, songName);
+    StateResult result = stateAdd(&state, stateId, stateName, songName);
     if (result != STATE_SUCCESS){
         return result;
     }
@@ -265,22 +269,23 @@ StateResult stateAddWithMap(State state, int stateId, const char* stateName, con
 }
 
 ///uses mapDestroy**************
-StateResult stateRemove(State state, int stateId) {
-    if (state == NULL) {
+StateResult stateRemove(State* state, int stateId) {
+    if (*state == NULL) {
         return STATE_NULL_ARGUMENT;
     }
     ///checking if the stateId does not exist
-    if (!stateContain(state, stateId)) {
+    if (!stateContain(*state, stateId)) {
         return STATE_NOT_EXIST;
     }
     ///if we are removing the first state
-    if (state->stateId == stateId) {
-        State stateToDelete = state;
-        state = state->stateNext;
+    if ((*state)->stateId == stateId) {
+        State stateToDelete = *state;
+        *state = (*state)->stateNext;
         stateSingalDestroy(stateToDelete);
+        return STATE_SUCCESS;
     }
     ///we to need search for the state after the first one
-    State help_iterator = state;
+    State help_iterator = *state;
     while (help_iterator->stateNext != NULL) {
         if (help_iterator->stateNext->stateId == stateId) {
             State stateToDelete = help_iterator->stateNext;
@@ -330,3 +335,4 @@ StateResult deleteOutState (State state , int stateId){
     return  STATE_SUCCESS;
 
 }
+
