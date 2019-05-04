@@ -4,11 +4,11 @@
 #include <assert.h>
 #include "map.c"
 
-/////////
 
 #define LEN 10
 #define NOMOREMAX -1
 typedef struct state{
+    int flag;
     int stateId;
     char* stateName;
     char* songName;
