@@ -219,16 +219,21 @@ State stateCreate(int stateId, const char* stateName, const char* songName) {
 }
 
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
+/////הכרזות//////
+char* strCpy(char* destination, const char* source);
+static MapKeyElement copyKeyInt(MapKeyElement n);
+static MapDataElement copyDataInt(MapDataElement n);
+static void freeKeyInt(MapKeyElement n);
+static void freeDataInt(MapDataElement n);
+static int compareInts(MapKeyElement n1, MapKeyElement n2);
 
-//////הכרזה//////
-char* strcpy(char* destination, const char* source);
 
-
-////מימוש////////
-char* strcpy(char* destination, const char* source)
+////מימושים////////
+char* strCpy(char* destination, const char* source)
 {
 	// return if no memory is allocated to the destination
 	if (destination == NULL)
@@ -252,3 +257,43 @@ char* strcpy(char* destination, const char* source)
 	// destination is returned by standard strcpy()
 	return ptr;
 }
+
+
+static MapKeyElement copyKeyInt(MapKeyElement n) {
+    if (!n) {
+        return NULL;
+    }
+    int *copy = malloc(sizeof(*copy));
+    if (!copy) {
+        return NULL;
+    }
+    *copy = *(int *) n;
+    return copy;
+}
+
+static MapDataElement copyKeyInt(MapDataElement n) {
+    if (!n) {
+        return NULL;
+    }
+    int *copy = malloc(sizeof(*copy));
+    if (!copy) {
+        return NULL;
+    }
+    *copy = *(int *) n;
+    return copy;
+}
+
+
+static void freeKeyInt(MapKeyElement n) {
+    free(n);
+}
+
+static void freeDataInt(MapDataElement n) {
+    free(n);
+}
+
+static int compareInts(MapKeyElement n1, MapKeyElement n2) {
+    return (*(int *) n1 - *(int *) n2);
+}
+
+
